@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 sixtyfps = "0.1.1"
+
+[build-dependencies]
+sixtyfps-build = "0.1"

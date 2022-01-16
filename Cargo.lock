@@ -2087,6 +2087,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sixtyfps-build"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec00050649d8491cc6cfa31e3766035cdc547ffc0adff5347263383d0d2cc4f1"
+dependencies = [
+ "sixtyfps-compilerlib",
+ "spin_on",
+ "thiserror",
+]
+
+[[package]]
 name = "sixtyfps-compilerlib"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2411,6 +2422,7 @@ name = "timesync"
 version = "0.1.0"
 dependencies = [
  "sixtyfps",
+ "sixtyfps-build",
 ]
 
 [[package]]

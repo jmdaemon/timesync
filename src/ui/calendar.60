@@ -1,0 +1,19 @@
+struct Days := {
+    text: string,
+    image: image,
+    image_visible: bool,
+    solved: bool,
+}
+
+export AppWindow := Window {
+    Rectangle { 
+        property <[Days]> day_tiles: [
+            { text: "1" },
+            { text: "2" },
+        ];
+    }
+        Text {
+            text: "hello world";
+            color: green;
+        }
+    }

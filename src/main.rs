@@ -1,11 +1,6 @@
-sixtyfps::sixtyfps!{
-    HelloWorld := Window {
-        Text {
-            text: "hello world";
-            color: green;
-        }
-    }
-}
+sixtyfps::include_modules!();
+
 fn main() {
-    HelloWorld::new().run();
+    let ui = AppWindow::new();
+    ui.run();
 }
