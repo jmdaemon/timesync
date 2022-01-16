@@ -1,3 +1,11 @@
+sixtyfps::sixtyfps!{
+    HelloWorld := Window {
+        Text {
+            text: "hello world";
+            color: green;
+        }
+    }
+}
 fn main() {
-    println!("Hello, world!");
+    HelloWorld::new().run();
 }
