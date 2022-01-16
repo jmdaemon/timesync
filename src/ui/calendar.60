@@ -1,19 +1,32 @@
-struct Days := {
-    text: string,
-    image: image,
-    image_visible: bool,
-    solved: bool,
+struct DayData := {
+    daynum: string,
+}
+
+Day := Rectangle {
+    width: 64px;
+    height: 64px;
 }
 
 export AppWindow := Window {
-    Rectangle { 
-        property <[Days]> day_tiles: [
-            { text: "1" },
-            { text: "2" },
-        ];
+    title: "TimeSync - Calendar";
+    Text {
+        text: "January 2022";
+        font-size: 16pt;
     }
+
+    property <[DayData]> days : [
+        { daynum: "1" },
+        { daynum: "2" },
+    ];
+
+    for day[i] in days: Day {
+        x: mod(i, 4) * 74px;
+        y: floor(i / 4) * 74px;
+        width: 64px;
+        height: 64px;
         Text {
-            text: "hello world";
-            color: green;
+            text: day.daynum;
+            font-size: 12pt;
         }
     }
+}
