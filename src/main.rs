@@ -5,21 +5,18 @@ sixtyfps::include_modules!();
 
 fn main() {
     let ui = AppWindow::new();
-    let mut tiles: Vec<DayData> = ui.get_days().iter().collect();
+
+    let mut days: Vec<DayData> = ui.get_days().iter().collect();
 
     // Generate days of the month
-    // Duplicate them to ensure that we have pairs
-    tiles.pop();
-    tiles.pop();
     for i in 1..31 {
-        tiles.push(DayData {
+        days.push(DayData {
             daynum: SharedString::from(i.to_string()),
         });
     }
-    //tiles.extend(tiles.clone());
 
-    let tiles_model = Rc::new(VecModel::from(tiles));
-    ui.set_days(ModelHandle::new(tiles_model.clone()));
+    let days_model = Rc::new(VecModel::from(days));
+    ui.set_days(ModelHandle::new(days_model.clone()));
     let _appwin_weak = ui.as_weak();
     ui.run();
 }

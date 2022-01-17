@@ -7,8 +7,6 @@ Day := Rectangle {
     border-width: 2px;
     width: 64px;
     height: 64px;
-    //width: 128px;
-    //height: 128px;
 }
 
 export AppWindow := Window {
@@ -24,9 +22,7 @@ export AppWindow := Window {
         }
     }
     
-    //property<length> day-size: 80px;
     property<length> day-size: 0px;
-    //property<length> day-spacing: 10px;
     property<length> day-spacing: 0px;
     property <int> column-count: 7;
     property <int> row-count: 4;
@@ -34,36 +30,19 @@ export AppWindow := Window {
     width: (column-count * day-size) + ((column-count + 1) * day-spacing);
     height: (row-count * day-size) + ((row-count + 1) * day-spacing);
 
-    property <[DayData]> days : [
-        { daynum: "1" },
-        { daynum: "2" },
-    ];
+    property <[DayData]> days : [ ];
 
     Rectangle {
             x: 60px;
             y: 60px;
         for day[i] in days: Day {
-            //x: mod(i, 4) * 80px;
             x: mod(i, 7) * 60px;
-            //x: mod(i, 7) * 120px;
-            //x: i == 1 ? 60px : i * 60px;
-            //y: floor(i / 4) * 120px;
             y: floor(i / 7) * 60px;
-            //y: floor(i / 7) * 120px;
-            //width: 128px;
-            //height: 128px;
             width: 64px;
             height: 64px;
-            //width: 128px;
-            //height: 128px;
             Text {
-                padding: 8px;
                 x: 8px;
                 y: 8px;
-                //x: parent.x + 8px;
-                //y: parent.y + 8px;
-                //width: parent.width;
-                //height: parent.height;
                 text: day.daynum;
                 font-size: 13pt;
             }
