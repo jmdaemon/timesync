@@ -19,12 +19,12 @@ fn gen_month(month: &str) -> MonthData { MonthData { current_month: SharedString
 fn gen_year(year: &str) -> YearData { YearData { current_year: SharedString::from(year.to_owned()) } }
 
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
-fn year() -> i32 { chrono::Utc::now().year() }
+fn year() -> String { chrono::Utc::now().year().to_string() }
 
 fn main() {
     let ui = AppWindow::new();
 
-    let years = gen_year(&year().to_string());
+    let years = gen_year(&year());
     let months = gen_month(&month());
     let days = gen_days(31);
 
