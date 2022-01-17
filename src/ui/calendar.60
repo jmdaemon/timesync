@@ -17,20 +17,16 @@ Day := Rectangle {
 
 export AppWindow := Window {
     title: "TimeSync - Calendar";
-    property <[MonthData]> months : [
-        //{current_month: "January 2020"},
-    ];
+    property <MonthData> months;
 
     Rectangle {
             x: 10px;
             y: 10px;
             width: 60px;
             height: 60px;
-            for month[i] in months: Month {
-                Text {
-                    text: month.current_month;
-                    font-size: 16pt;
-                }
+            Text {
+                text: months.current_month;
+                font-size: 16pt;
             }
     }
     

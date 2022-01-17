@@ -17,11 +17,11 @@ fn gen_days(month: &str, ui: &AppWindow) -> Vec<DayData> {
     return days;
 }
 
-fn gen_month(month: &str, ui: &AppWindow) -> Vec<MonthData> {
-    let mut months: Vec<MonthData> = ui.get_months().iter().collect();
-    months.push(MonthData {
+fn gen_month(month: &str, ui: &AppWindow) -> MonthData {
+    let mut months: MonthData = ui.get_months();
+    months = MonthData {
         current_month: SharedString::from(month.to_owned())
-    });
+    };
     return months;
 }
 
@@ -29,8 +29,6 @@ fn gen_month(month: &str, ui: &AppWindow) -> Vec<MonthData> {
 /// Get the current month
 fn month() -> String {
     let dt = chrono::Utc::now();
-    //let month_num = dt.month();
-    //let month_str = dt.format("%m").to_string();
     let month_str = Month::from_u32(dt.month()).unwrap().name().to_owned();
     return month_str;
 }
@@ -44,20 +42,14 @@ fn year() -> i32 {
 fn main() {
     let ui = AppWindow::new();
 
-    //let mut days: Vec<DayData> = ui.get_days().iter().collect();
-    //let months = [
-        //"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November"
-    //];
-    //let month = month();
     let months = gen_month(&month(), &ui);
-    //let days = gen_days(&month[0], &ui);
     let days = gen_days(&month(), &ui);
 
     let days_model = Rc::new(VecModel::from(days));
-    let months_model  = Rc::new(VecModel::from(months));
+    let months_model = months;
 
     ui.set_days(ModelHandle::new(days_model.clone()));
-    ui.set_months(ModelHandle::new(months_model.clone()));
+    ui.set_months(months_model);
     let _appwin_weak = ui.as_weak();
     ui.run();
 }
