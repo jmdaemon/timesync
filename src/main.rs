@@ -1,9 +1,9 @@
-use sixtyfps::{ModelHandle, VecModel, SharedString};
+use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
 use std::rc::Rc;
 
-sixtyfps::include_modules!();
+slint::include_modules!();
 
 fn gen_days(numdays: i32) -> Vec<DayData> {
     let mut days: Vec<DayData> = Vec::new();
@@ -32,7 +32,7 @@ fn main() {
     let months_model = months;
     let years_model = years;
 
-    ui.set_days(ModelHandle::new(days_model.clone()));
+    ui.set_days(ModelRc::new(days_model.clone()));
     ui.set_months(months_model);
     ui.set_years(years_model);
     let _appwin_weak = ui.as_weak();

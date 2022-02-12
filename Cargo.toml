@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sixtyfps = "0.1.1"
+slint = "0.2.0"
 chrono = "0.4"
 num-traits = "0.2.14"
 
 [build-dependencies]
-sixtyfps-build = "0.1"
+slint-build = "0.2.0"

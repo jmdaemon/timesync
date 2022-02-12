@@ -1,3 +1,3 @@
 fn main() {
-    sixtyfps_build::compile("src/ui/calendar.60").unwrap();
+    slint_build::compile("src/ui/calendar.slint").unwrap();
 }
