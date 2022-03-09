@@ -32,7 +32,7 @@ fn main() {
     let months_model = months;
     let years_model = years;
 
-    ui.set_days(ModelRc::new(days_model.clone()));
+    ui.set_days(ModelRc::from(days_model.clone()));
     ui.set_months(months_model);
     ui.set_years(years_model);
     let _appwin_weak = ui.as_weak();
