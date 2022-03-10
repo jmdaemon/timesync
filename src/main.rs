@@ -7,6 +7,7 @@ use std::fs::File;
 //use std::io::Read;
 use std::rc::Rc;
 use std::process::exit;
+use std::collections::HashMap;
 
 use icalendar::{parser};
 
@@ -28,6 +29,17 @@ fn gen_year(year: &str) -> YearData { YearData { current_year: SharedString::fro
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
+#[derive(Debug)]
+pub struct Event {
+    pub properties: HashMap<String, String>
+}
+
+impl Event {
+    pub fn new(properties: HashMap<String, String>) -> Event {
+        Event { properties: properties }
+    }
+}
+
 fn main() {
     let matches = App::new("Timesync")
         .version("0.1.0")
@@ -38,12 +50,14 @@ fn main() {
 
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
 
+    // Read the file
     let mut file;
     let readable: &mut dyn std::io::Read = {
         file = File::open(calpath).unwrap();
         &mut file
     };
 
+    // Parse the file and create the calendar
     let mut output = String::new();
     readable.read_to_string(&mut output).unwrap();
     //let unfolded = icalendar::parser::unfold(&output);
@@ -56,13 +70,12 @@ fn main() {
         //println!("{:?}\n", calcomp);
         parser_components.push(calcomp);
     }
+
+    //let mut event_properties = HashMap::new();
+    // Convert all the calendar components into a vector of
+    // Events with the properties available as an easy to use HashMap
+    let mut events = Vec::new();
     for comp in parser_components {
-        // Accessing Properties
-        //let properties = comp.properties;
-        ////println!("{:?}\n", comp.properties);
-        //for prop in properties {
-            //println!("{:?}", prop);
-        //}
         let acomponents = comp.components;
         for acomp in acomponents {
             // Display component
@@ -73,13 +86,29 @@ fn main() {
             println!("{:?}", properties);
 
             // Access properties individually
+            let mut event_properties = HashMap::new();
             for prop in properties {
                 println!("{:?}", prop.name);
                 println!("{:?}", prop.val);
+                event_properties.insert(prop.name.to_string(), prop.val.to_string());
             }
+            //let mut event = Event{properties: event_properties};
+            let event = Event::new(event_properties);
+            events.push(event);
         }
     }
-    //exit(0);
+    //println!("{}", event_properties["DTSTART"]);
+    println!("{:?}", events);
+
+    let first_event : &Event = &events[1];
+    println!("{:?}", events[1]);
+
+    println!("{}", &first_event.properties.get("DTSTART").unwrap());
+    //println!("{}", events[0].properties["DTSTART"]);
+    //println!("{}", events[0].properties);
+    //HashMap::new().clone
+
+    exit(0);
 
     let ui = AppWindow::new();
 
