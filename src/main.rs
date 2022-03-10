@@ -4,8 +4,11 @@ use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
 use std::fs::File;
-use std::io::Read;
+//use std::io::Read;
 use std::rc::Rc;
+use std::process::exit;
+
+use icalendar::{parser};
 
 slint::include_modules!();
 
@@ -42,33 +45,41 @@ fn main() {
     };
 
     let mut output = String::new();
-    //readable.read_to_string(&mut output)?;
-    //readable.read_to_string(&mut output).unwrap();
     readable.read_to_string(&mut output).unwrap();
-    //Ok(Some(output));
-    //let unfolded = unfold(&sample);
-    let unfolded = icalendar::parser::unfold(&output);
-    //icalendar::parser::unfold
+    //let unfolded = icalendar::parser::unfold(&output);
+    let unfolded = parser::unfold(&output);
+    let cal = parser::read_calendar_simple(&unfolded).unwrap();
 
-    //let cal = icalendar::parser::read_calendar(calpath).unwrap();
-    let cal = icalendar::parser::read_calendar(&unfolded).unwrap();
-    println!("{}", cal);
-    //let cal = icalendar::parser::read_calendar_simple(&unfolded).unwrap();
-    
-    //let properties = &cal[0].properties;
-    //println!("{}", properties[""]);
-    
+    let mut parser_components = Vec::new();
+    for calcomp in cal {
+        // Display all the parser_components found
+        //println!("{:?}\n", calcomp);
+        parser_components.push(calcomp);
+    }
+    for comp in parser_components {
+        // Accessing Properties
+        //let properties = comp.properties;
+        ////println!("{:?}\n", comp.properties);
+        //for prop in properties {
+            //println!("{:?}", prop);
+        //}
+        let acomponents = comp.components;
+        for acomp in acomponents {
+            // Display component
+            println!("{:?}", acomp);
 
-    //cal.components();
-    //icalendar::parser::components
-    //icalendar::Component::properties();
-    //let properties = cal.properties;
+            // Display all properties at once
+            let properties = acomp.properties;
+            println!("{:?}", properties);
 
-    //for property in properties {
-        //println!("{}", property[""});
-        ////println!("{}", property.name);
-        ////println!("{}", property.value);
-    //}
+            // Access properties individually
+            for prop in properties {
+                println!("{:?}", prop.name);
+                println!("{:?}", prop.val);
+            }
+        }
+    }
+    //exit(0);
 
     let ui = AppWindow::new();
 
