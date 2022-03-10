@@ -4,7 +4,6 @@ use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
 use std::fs::File;
-//use std::io::Read;
 use std::rc::Rc;
 use std::process::exit;
 use std::collections::HashMap;
@@ -41,14 +40,26 @@ impl Event {
 }
 
 fn main() {
-    let matches = App::new("Timesync")
+    let app = App::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
         .about("Easily create beautiful, customizable annotations for pdfs")
         .arg(Arg::new("calpath").help("File path to the pdf"))
-        .get_matches();
+        .arg(Arg::new("v").help("Show verbose output"));
 
+    let mut borrow_app = app.clone();
+    let matches = app.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
+    let verbose;
+    match matches.occurrences_of("v") {
+        0 => verbose = false,
+        1 => verbose = true,
+        _ => {
+            borrow_app.print_help().unwrap();
+            println!("");
+            std::process::exit(1);
+        }
+    }
 
     // Read the file
     let mut file;
@@ -60,38 +71,48 @@ fn main() {
     // Parse the file and create the calendar
     let mut output = String::new();
     readable.read_to_string(&mut output).unwrap();
-    //let unfolded = icalendar::parser::unfold(&output);
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).unwrap();
 
     let mut parser_components = Vec::new();
     for calcomp in cal {
         // Display all the parser_components found
-        //println!("{:?}\n", calcomp);
+        if verbose {
+            println!("Components");
+            println!("{:?}\n", calcomp);
+        }
         parser_components.push(calcomp);
     }
 
-    //let mut event_properties = HashMap::new();
     // Convert all the calendar components into a vector of
     // Events with the properties available as an easy to use HashMap
     let mut events = Vec::new();
     for comp in parser_components {
         let acomponents = comp.components;
         for acomp in acomponents {
-            // Display component
-            println!("{:?}", acomp);
+            if verbose {
+                // Display component
+                println!("{:?}", acomp);
 
-            // Display all properties at once
-            let properties = acomp.properties;
-            println!("{:?}", properties);
-
-            // Access properties individually
-            let mut event_properties = HashMap::new();
-            for prop in properties {
-                println!("{:?}", prop.name);
-                println!("{:?}", prop.val);
-                event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                // Display all properties at once
+                println!("{:?}", acomp.properties);
             }
+
+            let properties = acomp.properties;
+            let mut event_properties = HashMap::new();
+
+
+            if verbose {
+                for prop in properties {
+                        println!("{:?}", prop.name);
+                        println!("{:?}", prop.val);
+                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                    }
+                } else {
+                    for prop in properties {
+                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                    }
+                }
             //let mut event = Event{properties: event_properties};
             let event = Event::new(event_properties);
             events.push(event);
