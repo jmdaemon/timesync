@@ -10,7 +10,7 @@ slint = "0.2.0"
 chrono = "0.4"
 num-traits = "0.2.14"
 clap = "3.0.14"
-ical = "0.7.0"
+icalendar = {version = "0.11.0", features = ["parser"]}
 
 [build-dependencies]
 slint-build = "0.2.0"

@@ -1,11 +1,11 @@
-extern crate ical;
-
+extern crate icalendar;
 use clap::{Arg, App};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
+use std::fs::File;
+use std::io::Read;
 use std::rc::Rc;
-//use std::process::exit;
 
 slint::include_modules!();
 
@@ -35,26 +35,40 @@ fn main() {
 
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
 
-    let buf = BufReader::new(File::open(calpath).unwrap());
-    let parser = ical::IcalParser::new(buf);
+    let mut file;
+    let readable: &mut dyn std::io::Read = {
+        file = File::open(calpath).unwrap();
+        &mut file
+    };
 
-    for line in parser {
-        let events : Vec<ical::parser::ical::component::IcalEvent> = line.unwrap().events;
-        for event in events {
-            let properties : Vec<ical::property::Property> = event.properties;
-            println!{"Event:"}
-            for property in properties {
-                if property.name == "SUMMARY" {
-                    println!("Event Name: {}", property.name);
-                } else {
-                    println!("{:?}", property.name);
-                }
-                println!("{:?}", property.value);
-            }
-            println!();
-        }
-    }
-    //exit(0);
+    let mut output = String::new();
+    //readable.read_to_string(&mut output)?;
+    //readable.read_to_string(&mut output).unwrap();
+    readable.read_to_string(&mut output).unwrap();
+    //Ok(Some(output));
+    //let unfolded = unfold(&sample);
+    let unfolded = icalendar::parser::unfold(&output);
+    //icalendar::parser::unfold
+
+    //let cal = icalendar::parser::read_calendar(calpath).unwrap();
+    let cal = icalendar::parser::read_calendar(&unfolded).unwrap();
+    println!("{}", cal);
+    //let cal = icalendar::parser::read_calendar_simple(&unfolded).unwrap();
+    
+    //let properties = &cal[0].properties;
+    //println!("{}", properties[""]);
+    
+
+    //cal.components();
+    //icalendar::parser::components
+    //icalendar::Component::properties();
+    //let properties = cal.properties;
+
+    //for property in properties {
+        //println!("{}", property[""});
+        ////println!("{}", property.name);
+        ////println!("{}", property.value);
+    //}
 
     let ui = AppWindow::new();
 
