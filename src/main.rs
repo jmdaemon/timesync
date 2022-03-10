@@ -1,8 +1,11 @@
+extern crate ical;
+
 use clap::{Arg, App};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
 use std::rc::Rc;
+//use std::process::exit;
 
 slint::include_modules!();
 
@@ -30,7 +33,28 @@ fn main() {
         .arg(Arg::new("calpath").help("File path to the pdf"))
         .get_matches();
 
-    let _calpath = matches.value_of("calpath").expect("No calendar provided.");
+    let calpath = matches.value_of("calpath").expect("No calendar provided.");
+
+    let buf = BufReader::new(File::open(calpath).unwrap());
+    let parser = ical::IcalParser::new(buf);
+
+    for line in parser {
+        let events : Vec<ical::parser::ical::component::IcalEvent> = line.unwrap().events;
+        for event in events {
+            let properties : Vec<ical::property::Property> = event.properties;
+            println!{"Event:"}
+            for property in properties {
+                if property.name == "SUMMARY" {
+                    println!("Event Name: {}", property.name);
+                } else {
+                    println!("{:?}", property.name);
+                }
+                println!("{:?}", property.value);
+            }
+            println!();
+        }
+    }
+    //exit(0);
 
     let ui = AppWindow::new();
 
