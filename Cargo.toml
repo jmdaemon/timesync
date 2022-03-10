@@ -9,6 +9,7 @@ edition = "2021"
 slint = "0.2.0"
 chrono = "0.4"
 num-traits = "0.2.14"
+clap = "3.0.14"
 
 [build-dependencies]
 slint-build = "0.2.0"

@@ -1,3 +1,4 @@
+use clap::{Arg, App};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month};
 use num_traits::FromPrimitive;
@@ -22,6 +23,15 @@ fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
 fn main() {
+    let matches = App::new("Timesync")
+        .version("0.1.0")
+        .author("Joseph Diza <josephm.diza@gmail.com>")
+        .about("Easily create beautiful, customizable annotations for pdfs")
+        .arg(Arg::new("calpath").help("File path to the pdf"))
+        .get_matches();
+
+    let _calpath = matches.value_of("calpath").expect("No calendar provided.");
+
     let ui = AppWindow::new();
 
     let years = gen_year(&year());
