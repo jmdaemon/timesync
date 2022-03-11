@@ -36,10 +36,6 @@ pub struct Event {
 }
 
 pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
-    //let datetime = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H:%M:%S").unwrap();
-    //let result = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H%M%SZ").unwrap();
-    //datetime
-    //NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H%M%SZ").expect("Unable to parse date time string");
     NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
 }
 
@@ -48,34 +44,12 @@ impl Event {
         Event { properties: properties }
     }
 
-    //pub fn difftime(&self) -> i64 {
     pub fn difftime(&self) -> chrono::Duration {
-        //let no_timezone = NaiveDateTime::parse_from_str("2015-09-05T23:56:04", "%Y-%m-%d %H:%M:%S")?;
-        //let start : i64 = self.properties["DSTART"].parse::<i64>().unwrap();
-        //let end : i64 = self.properties["DTEND"].parse::<i64>().unwrap();
-        //(start - end).abs()
-
-        //let start : i64 = parse_datetime(self.properties["DSTART"]).unwrap();
-        //let end : i64 = parse_datetime(self.properties["DTEND"]).unwrap();
-        //let start = parse_datetime(&self.properties["DSTART"]).time();
-        //let end = parse_datetime(&self.properties["DTEND"]).time();
-
-        //println!("{:?}", &self.properties);
-
-        //let start = parse_datetime(&self.properties.get("DSTART").unwrap()).time();
-        //let end = parse_datetime(&self.properties.get("DTEND").unwrap()).time();
-
-        //let start_str = &self.properties.get("DTSTART").expect("No start date for event");
-        //let end_str  = &self.properties.get("DTEND").expect("No end date for event");
         let start = parse_datetime(&self.properties.get("DTSTART").expect("DTSTART not found.")).time();
         let end = parse_datetime(&self.properties.get("DTEND").expect("DTEND not found")).time();
         end - start
     }
-
-    //pub fn occurs_on() {}
 }
-
-
 
 fn main() {
     let app = App::new("Timesync")
@@ -139,8 +113,8 @@ fn main() {
             let properties = acomp.properties;
             let mut event_properties = HashMap::new();
 
-
             if verbose {
+                println!("Component Properties Found:");
                 for prop in properties {
                         println!("{:?}", prop.name);
                         println!("{:?}", prop.val);
@@ -152,25 +126,21 @@ fn main() {
                     event_properties.insert(prop.name.to_string(), prop.val.to_string());
                 }
             }
-            //let mut event = Event{properties: event_properties};
             let event = Event::new(event_properties);
             events.push(event);
         }
     }
     
-    //println!("{}", event_properties["DTSTART"]);
-    println!("{:?}", events);
+    if verbose {
+        println!("Events Vector:");
+        println!("{:?}", events);
+    }
 
-    let first_event : &Event = &events[1];
+    let example_event : &Event = &events[1];
     println!("{:?}", events[1]);
-
-    println!("{:?}", first_event.difftime());
-    //println!("{:?}", &events[1].difftime());
-
-    println!("{}", &first_event.properties.get("DTSTART").unwrap());
-    //println!("{}", events[0].properties["DTSTART"]);
-    //println!("{}", events[0].properties);
-    //HashMap::new().clone
+    println!("{:?}", example_event);
+    println!("{:?}", example_event.difftime());
+    println!("{}", &example_event.properties.get("DTSTART").unwrap());
 
     exit(0);
 
