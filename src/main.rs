@@ -1,15 +1,14 @@
 extern crate icalendar;
 use clap::{Arg, App};
+use icalendar::{parser};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month, NaiveDateTime};
 use num_traits::FromPrimitive;
 use std::fs::File;
 use std::rc::Rc;
-//use std::time;
 use std::process::exit;
 use std::collections::HashMap;
-
-use icalendar::{parser};
+use std::io::{self, Read};
 
 slint::include_modules!();
 
@@ -51,6 +50,23 @@ impl Event {
     }
 }
 
+pub fn read_file(path: &str) -> Result<String, io::Error> {
+    /// Reads a file into a string and returns the result
+    let f = File::open(path);
+
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+            Ok(_) => Ok(s),
+            Err(err) => Err(err),
+    }
+}
+
 fn main() {
     let app = App::new("Timesync")
         .version("0.1.0")
@@ -69,22 +85,13 @@ fn main() {
         _ => {
             borrow_app.print_help().unwrap();
             println!("");
-            std::process::exit(1);
+            exit(1);
         }
     }
 
-    // Read the file
-    let mut file;
-    let readable: &mut dyn std::io::Read = {
-        file = File::open(calpath).unwrap();
-        &mut file
-    };
-
-    // Parse the file and create the calendar
-    let mut output = String::new();
-    readable.read_to_string(&mut output).unwrap();
+    let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
-    let cal = parser::read_calendar_simple(&unfolded).unwrap();
+    let cal = parser::read_calendar_simple(&unfolded).expect(format!("Unable to parse {} into Calendar", calpath));
 
     let mut parser_components = Vec::new();
     for calcomp in cal {
