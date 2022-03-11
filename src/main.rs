@@ -1,10 +1,11 @@
 extern crate icalendar;
 use clap::{Arg, App};
 use slint::{ModelRc, VecModel, SharedString};
-use chrono::{Datelike, Month};
+use chrono::{Datelike, Month, NaiveDateTime};
 use num_traits::FromPrimitive;
 use std::fs::File;
 use std::rc::Rc;
+//use std::time;
 use std::process::exit;
 use std::collections::HashMap;
 
@@ -28,16 +29,53 @@ fn gen_year(year: &str) -> YearData { YearData { current_year: SharedString::fro
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
-#[derive(Debug)]
+//#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Event {
     pub properties: HashMap<String, String>
+}
+
+pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
+    //let datetime = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H:%M:%S").unwrap();
+    //let result = NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H%M%SZ").unwrap();
+    //datetime
+    //NaiveDateTime::parse_from_str(datetime, "%Y-%m-%dT%H%M%SZ").expect("Unable to parse date time string");
+    NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
 }
 
 impl Event {
     pub fn new(properties: HashMap<String, String>) -> Event {
         Event { properties: properties }
     }
+
+    //pub fn difftime(&self) -> i64 {
+    pub fn difftime(&self) -> chrono::Duration {
+        //let no_timezone = NaiveDateTime::parse_from_str("2015-09-05T23:56:04", "%Y-%m-%d %H:%M:%S")?;
+        //let start : i64 = self.properties["DSTART"].parse::<i64>().unwrap();
+        //let end : i64 = self.properties["DTEND"].parse::<i64>().unwrap();
+        //(start - end).abs()
+
+        //let start : i64 = parse_datetime(self.properties["DSTART"]).unwrap();
+        //let end : i64 = parse_datetime(self.properties["DTEND"]).unwrap();
+        //let start = parse_datetime(&self.properties["DSTART"]).time();
+        //let end = parse_datetime(&self.properties["DTEND"]).time();
+
+        //println!("{:?}", &self.properties);
+
+        //let start = parse_datetime(&self.properties.get("DSTART").unwrap()).time();
+        //let end = parse_datetime(&self.properties.get("DTEND").unwrap()).time();
+
+        //let start_str = &self.properties.get("DTSTART").expect("No start date for event");
+        //let end_str  = &self.properties.get("DTEND").expect("No end date for event");
+        let start = parse_datetime(&self.properties.get("DTSTART").expect("DTSTART not found.")).time();
+        let end = parse_datetime(&self.properties.get("DTEND").expect("DTEND not found")).time();
+        end - start
+    }
+
+    //pub fn occurs_on() {}
 }
+
+
 
 fn main() {
     let app = App::new("Timesync")
@@ -108,21 +146,26 @@ fn main() {
                         println!("{:?}", prop.val);
                         event_properties.insert(prop.name.to_string(), prop.val.to_string());
                     }
-                } else {
-                    for prop in properties {
-                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
-                    }
                 }
+            else {
+                for prop in properties {
+                    event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                }
+            }
             //let mut event = Event{properties: event_properties};
             let event = Event::new(event_properties);
             events.push(event);
         }
     }
+    
     //println!("{}", event_properties["DTSTART"]);
     println!("{:?}", events);
 
     let first_event : &Event = &events[1];
     println!("{:?}", events[1]);
+
+    println!("{:?}", first_event.difftime());
+    //println!("{:?}", &events[1].difftime());
 
     println!("{}", &first_event.properties.get("DTSTART").unwrap());
     //println!("{}", events[0].properties["DTSTART"]);
