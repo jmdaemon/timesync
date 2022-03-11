@@ -1,6 +1,7 @@
 extern crate icalendar;
 use clap::{Arg, App};
 use icalendar::{parser};
+use rrule::{RRule, DateFilter};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Datelike, Month, NaiveDateTime};
 use num_traits::FromPrimitive;
@@ -54,6 +55,18 @@ impl Event {
         let start = parse_datetime(&self.properties.get("DTSTART").expect("DTSTART not found.")).time();
         let end = parse_datetime(&self.properties.get("DTEND").expect("DTEND not found")).time();
         end - start
+    }
+
+    /// Appends DTSTART to the RRULE string
+    pub fn format_rrule(&self) -> String{
+        let dtstart  = &self.properties.get("DTSTART").unwrap();
+        let rrule_str = &self.properties.get("RRULE").unwrap();
+
+        let mut rrule: String = "DTSTART:".to_string();
+        rrule.push_str(&dtstart.to_string());
+        rrule.push_str("\n");
+        rrule.push_str(&rrule_str.to_string());
+        rrule.to_string()
     }
 }
 
@@ -159,6 +172,14 @@ fn main() {
     println!("{:?}", example_event);
     println!("{:?}", example_event.difftime());
     println!("{}", &example_event.properties.get("DTSTART").unwrap());
+
+    let format_rrule = example_event.format_rrule();
+    let rrule: RRule = format_rrule.parse().unwrap();
+    // Set hard limit in case of infinitely recurring rules.
+    let limit = 100;
+    // Get all recurrences of the rrule
+    let recurrences = rrule.all(limit).unwrap();
+    println!("{:?}", recurrences);
 
     exit(0);
 
