@@ -157,6 +157,25 @@ pub fn display_calcomp(verbose: bool, cal: Vec<icalendar::parser::Component>) {
     }
 }
 
+/// Setup the User Interface
+pub fn build_ui() -> AppWindow {
+    let ui = AppWindow::new();
+
+    let years = gen_year(&year());
+    let months = gen_month(&month());
+    let days = gen_days(31);
+
+    let days_model = Rc::new(VecModel::from(days));
+    let months_model = months;
+    let years_model = years;
+
+    ui.set_days(ModelRc::from(days_model.clone()));
+    ui.set_months(months_model);
+    ui.set_years(years_model);
+    let _appwin_weak = ui.as_weak();
+    ui
+}
+
 fn main() {
     let app = App::new("Timesync")
         .version("0.1.0")
@@ -205,19 +224,6 @@ fn main() {
 
     exit(0);
 
-    let ui = AppWindow::new();
-
-    let years = gen_year(&year());
-    let months = gen_month(&month());
-    let days = gen_days(31);
-
-    let days_model = Rc::new(VecModel::from(days));
-    let months_model = months;
-    let years_model = years;
-
-    ui.set_days(ModelRc::from(days_model.clone()));
-    ui.set_months(months_model);
-    ui.set_years(years_model);
-    let _appwin_weak = ui.as_weak();
+    let ui = build_ui();
     ui.run();
 }
