@@ -110,7 +110,7 @@ pub fn read_file(path: &str) -> Result<String, io::Error> {
 /// # Arguments
 ///
 /// * `verbose` - Show verbose output
-/// * `parser_components` - The parsed vector of parser components from parse_calcomp
+/// * `parser_components` - The Vec of icalendar::parser::Components from parsing the calendar file
 pub fn parse_events(verbose: bool, parser_components: Vec<icalendar::parser::Component>) -> Vec<Event> {
     let mut events = Vec::new();
     for comp in parser_components {
@@ -182,7 +182,7 @@ fn main() {
         }
     }
 
-    // Parse ical file into CalendarComponents
+    // Parse the calendar into a vector of parser components
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
