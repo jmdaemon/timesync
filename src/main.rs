@@ -43,9 +43,13 @@ pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
 }
 
 impl Event {
-
-    /// Initializes an Event object with the event properties stored in a HashMap
+    /// Returns an Event with the parsed event properties available
+    /// in a HashMap
     /// For more information about properties see: https://datatracker.ietf.org/doc/html/rfc5545
+    ///
+    /// # Arguments
+    ///
+    /// * `properties` - A HashMap of Strings that hold the parsed properties of a Calendar event
     pub fn new(properties: HashMap<String, String>) -> Event {
         Event { properties: properties }
     }
@@ -67,6 +71,19 @@ impl Event {
         rrule.push_str("\n");
         rrule.push_str(&rrule_str.to_string());
         rrule.to_string()
+    }
+
+    /// Print the dates that the event occurs on
+    ///
+    /// # Arguments
+    ///
+    /// * `limit` - A u16 that sets a hard limit in case of infinitely recurring rules.
+    pub fn occurs_on(&self, limit: u16) {
+        let format_rrule = &self.format_rrule();
+        let rrule: RRule = format_rrule.parse().unwrap();
+        // Get all recurrences of the rrule
+        let recurrences = rrule.all(limit).unwrap();
+        println!("{:?}", recurrences);
     }
 }
 
@@ -173,13 +190,7 @@ fn main() {
     println!("{:?}", example_event.difftime());
     println!("{}", &example_event.properties.get("DTSTART").unwrap());
 
-    let format_rrule = example_event.format_rrule();
-    let rrule: RRule = format_rrule.parse().unwrap();
-    // Set hard limit in case of infinitely recurring rules.
-    let limit = 100;
-    // Get all recurrences of the rrule
-    let recurrences = rrule.all(limit).unwrap();
-    println!("{:?}", recurrences);
+    println!("{:?}", example_event.occurs_on(100));
 
     exit(0);
 
