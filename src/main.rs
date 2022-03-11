@@ -35,7 +35,10 @@ pub struct Event {
 }
 
 pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
-    NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
+    match NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%S") {
+        Ok(datetime) => datetime,
+        Err(_) => NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
+    }
 }
 
 impl Event {
@@ -151,8 +154,8 @@ fn main() {
         println!("{:?}", events);
     }
 
-    let example_event : &Event = &events[1];
-    println!("{:?}", events[1]);
+    let example_event : &Event = &events[2];
+    println!("{:?}", events[2]);
     println!("{:?}", example_event);
     println!("{:?}", example_event.difftime());
     println!("{}", &example_event.properties.get("DTSTART").unwrap());
