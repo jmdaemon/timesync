@@ -104,6 +104,49 @@ pub fn read_file(path: &str) -> Result<String, io::Error> {
     }
 }
 
+/// Convert all the calendar components into a vector of
+/// Events with the properties available as an easy to use HashMap
+///
+/// # Arguments
+///
+/// * `verbose` - Show verbose output
+/// * `parser_components` - The parsed vector of parser components from parse_calendar
+pub fn parse_events(verbose: bool, parser_components : Vec<icalendar::parser::Component>) -> Vec<Event> {
+    let mut events = Vec::new();
+    for comp in parser_components {
+        let acomponents = comp.components;
+        for acomp in acomponents {
+            if verbose {
+                // Display component
+                println!("{:?}", acomp);
+
+                // Display all properties at once
+                println!("{:?}", acomp.properties);
+            }
+
+            let properties = acomp.properties;
+            let mut event_properties = HashMap::new();
+
+            if verbose {
+                println!("Component Properties Found:");
+                for prop in properties {
+                        println!("{:?}", prop.name);
+                        println!("{:?}", prop.val);
+                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                    }
+                }
+            else {
+                for prop in properties {
+                    event_properties.insert(prop.name.to_string(), prop.val.to_string());
+                }
+            }
+            let event = Event::new(event_properties);
+            events.push(event);
+        }
+    }
+    events
+}
+
 fn main() {
     let app = App::new("Timesync")
         .version("0.1.0")
@@ -144,40 +187,7 @@ fn main() {
         parser_components.push(calcomp);
     }
 
-    // Convert all the calendar components into a vector of
-    // Events with the properties available as an easy to use HashMap
-    let mut events = Vec::new();
-    for comp in parser_components {
-        let acomponents = comp.components;
-        for acomp in acomponents {
-            if verbose {
-                // Display component
-                println!("{:?}", acomp);
-
-                // Display all properties at once
-                println!("{:?}", acomp.properties);
-            }
-
-            let properties = acomp.properties;
-            let mut event_properties = HashMap::new();
-
-            if verbose {
-                println!("Component Properties Found:");
-                for prop in properties {
-                        println!("{:?}", prop.name);
-                        println!("{:?}", prop.val);
-                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
-                    }
-                }
-            else {
-                for prop in properties {
-                    event_properties.insert(prop.name.to_string(), prop.val.to_string());
-                }
-            }
-            let event = Event::new(event_properties);
-            events.push(event);
-        }
-    }
+    let events = parse_events(verbose, parser_components);
     
     if verbose {
         println!("Events Vector:");
