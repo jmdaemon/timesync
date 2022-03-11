@@ -99,7 +99,7 @@ fn main() {
     // Parse ical file into CalendarComponents
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
-    let cal = parser::read_calendar_simple(&unfolded).expect(format!("Unable to parse {} into Calendar", calpath));
+    let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
     let mut parser_components = Vec::new();
     for calcomp in cal {
