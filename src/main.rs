@@ -39,10 +39,14 @@ pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
 }
 
 impl Event {
+
+    /// Initializes an Event object with the event properties stored in a HashMap
+    /// For more information about properties see: https://datatracker.ietf.org/doc/html/rfc5545
     pub fn new(properties: HashMap<String, String>) -> Event {
         Event { properties: properties }
     }
 
+    /// Calculate the difference between DTSTART and DTEND
     pub fn difftime(&self) -> chrono::Duration {
         let start = parse_datetime(&self.properties.get("DTSTART").expect("DTSTART not found.")).time();
         let end = parse_datetime(&self.properties.get("DTEND").expect("DTEND not found")).time();
@@ -50,8 +54,8 @@ impl Event {
     }
 }
 
+/// Reads a file into a string and returns the result
 pub fn read_file(path: &str) -> Result<String, io::Error> {
-    /// Reads a file into a string and returns the result
     let f = File::open(path);
 
     let mut f = match f {
@@ -79,16 +83,20 @@ fn main() {
     let matches = app.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
     let verbose;
+
+    // Match only one occurrence of -v
     match matches.occurrences_of("v") {
         0 => verbose = false,
         1 => verbose = true,
         _ => {
+            // Display program usage and exit otherwise
             borrow_app.print_help().unwrap();
             println!("");
             exit(1);
         }
     }
 
+    // Parse ical file into CalendarComponents
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect(format!("Unable to parse {} into Calendar", calpath));
