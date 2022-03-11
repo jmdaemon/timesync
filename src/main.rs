@@ -147,18 +147,14 @@ pub fn parse_events(verbose: bool, parser_components: Vec<icalendar::parser::Com
     events
 }
 
-/// Parse the Calendar into a Vec of CalendarComponent
-pub fn parse_calcomp(verbose: bool, cal: Vec<icalendar::parser::Component>) -> Vec<icalendar::parser::Component> {
-    let mut parser_components = Vec::new();
-    for calcomp in cal {
-        // Display all the parser_components found
-        if verbose {
+/// Display all the calendar components found
+pub fn display_calcomp(verbose: bool, cal: Vec<icalendar::parser::Component>) {
+    if verbose {
+        for calcomp in cal {
             println!("Components");
             println!("{:?}\n", calcomp);
         }
-        parser_components.push(calcomp);
     }
-    parser_components
 }
 
 fn main() {
@@ -191,8 +187,8 @@ fn main() {
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
-    let parser_components = parse_calcomp(verbose, cal);
-    let events = parse_events(verbose, parser_components);
+    display_calcomp(verbose, cal.clone());
+    let events = parse_events(verbose, cal);
     
     if verbose {
         println!("Events Vector:");
