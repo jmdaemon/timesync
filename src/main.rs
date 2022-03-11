@@ -110,8 +110,8 @@ pub fn read_file(path: &str) -> Result<String, io::Error> {
 /// # Arguments
 ///
 /// * `verbose` - Show verbose output
-/// * `parser_components` - The parsed vector of parser components from parse_calendar
-pub fn parse_events(verbose: bool, parser_components : Vec<icalendar::parser::Component>) -> Vec<Event> {
+/// * `parser_components` - The parsed vector of parser components from parse_calcomp
+pub fn parse_events(verbose: bool, parser_components: Vec<icalendar::parser::Component>) -> Vec<Event> {
     let mut events = Vec::new();
     for comp in parser_components {
         let acomponents = comp.components;
@@ -147,6 +147,20 @@ pub fn parse_events(verbose: bool, parser_components : Vec<icalendar::parser::Co
     events
 }
 
+/// Parse the Calendar into a Vec of CalendarComponent
+pub fn parse_calcomp(verbose: bool, cal: Vec<icalendar::parser::Component>) -> Vec<icalendar::parser::Component> {
+    let mut parser_components = Vec::new();
+    for calcomp in cal {
+        // Display all the parser_components found
+        if verbose {
+            println!("Components");
+            println!("{:?}\n", calcomp);
+        }
+        parser_components.push(calcomp);
+    }
+    parser_components
+}
+
 fn main() {
     let app = App::new("Timesync")
         .version("0.1.0")
@@ -177,16 +191,7 @@ fn main() {
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
-    let mut parser_components = Vec::new();
-    for calcomp in cal {
-        // Display all the parser_components found
-        if verbose {
-            println!("Components");
-            println!("{:?}\n", calcomp);
-        }
-        parser_components.push(calcomp);
-    }
-
+    let parser_components = parse_calcomp(verbose, cal);
     let events = parse_events(verbose, parser_components);
     
     if verbose {
