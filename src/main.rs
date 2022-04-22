@@ -54,10 +54,25 @@ impl Event {
         Event { properties: properties }
     }
 
+    /// Get the time for the event
+    pub fn get_time(&self, key: &str) -> NaiveDateTime {
+        parse_datetime(self.properties.get(key).expect(&format!("{} not found.", key)))
+    }
+
+    /// Get the start time of the event
+    pub fn get_start_time(&self) -> NaiveDateTime {
+        self.get_time("DTSTART")
+    }
+
+    /// Get the end time of the event
+    pub fn get_end_time(&self) -> NaiveDateTime {
+        self.get_time("DTEND")
+    }
+
     /// Calculate the difference between DTSTART and DTEND
     pub fn difftime(&self) -> chrono::Duration {
-        let start = parse_datetime(&self.properties.get("DTSTART").expect("DTSTART not found.")).time();
-        let end = parse_datetime(&self.properties.get("DTEND").expect("DTEND not found")).time();
+        let start = self.get_start_time().time();
+        let end = self.get_end_time().time();
         end - start
     }
 
@@ -85,6 +100,12 @@ impl Event {
         let recurrences = rrule.all(limit).unwrap();
         println!("{:?}", recurrences);
     }
+
+    //pub fn is_ongoing(&self) -> bool {
+        //let now = get_time_now();
+        //let ongoing = now > self.get_start_time();
+        //return false;
+    //}
 }
 
 /// Reads a file into a string and returns the result
