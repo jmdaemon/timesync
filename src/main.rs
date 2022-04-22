@@ -3,7 +3,7 @@ use clap::{Arg, App};
 use icalendar::{parser};
 use rrule::{RRule, DateFilter};
 use slint::{ModelRc, VecModel, SharedString};
-use chrono::{Datelike, Month, NaiveDateTime};
+use chrono::{Duration, Datelike, Month, NaiveDateTime};
 use num_traits::FromPrimitive;
 use std::fs::File;
 use std::rc::Rc;
@@ -120,30 +120,42 @@ impl Event {
     /// Determine if the event occurs today
     pub fn is_today(&self) -> bool {
         let date_today = get_time_now().date();
-        let today = date_today == self.get_start_time().date();
+        let today = date_today == self.get_start_time().date().naive_utc();
         today
     }
 
     /// Determine if the event occurs tomorrow
     pub fn is_tomorrow(&self) -> bool {
         let date_tomorrow = get_time_now() + Duration::days(1);
-        let tomorrow = self.get_start_time().date() == date_tomorrow.date();
+        let tomorrow = self.get_start_time().date() == date_tomorrow.date().naive_utc();
         tomorrow
     }
 
     /// Determine if the event occurs this week
     pub fn is_this_week(&self) -> bool {
         let date_next_week = get_time_now() + Duration::days(7);
-        let week = self.get_start_time().date() < date_next_week.date();
+        let week = self.get_start_time().date() < date_next_week.date().naive_utc();
         week
     }
 
     /// Determines if the event has already started
-    pub fn has_started() -> bool {
-        let now = get_time_now();
-        let event_start_time = self.get_start_time();
+    pub fn has_started(&self) -> bool {
+        let now = get_time_now().timestamp();
+        let event_start_time = self.get_start_time().timestamp();
         let has_started = now > event_start_time;
         has_started
+    }
+
+    /// Determines if an event will start soon
+    pub fn will_start_in(&self, duration: Duration) -> bool {
+        let now = get_time_now();
+        let future = (now + duration).timestamp();
+        let start = self.get_start_time().timestamp();
+        // If the event will start x minutes/hours/days into the future
+        // return true, else false otherwise
+        // Note that an absolute difference function might be better to use here
+        let starts_soon = start == future; 
+        starts_soon
     }
     
     /**
@@ -153,11 +165,13 @@ impl Event {
     * - The specific event has not already passed.
     */
     pub fn is_urgent(&self, duration: Duration) -> bool {
-        let now = get_time_now();
-        let time_ahead = (now + duration).timestamp();
-        let event_start = self.get_start_time().timestamp();
-        let event_passed = (self.get_start_time() + duration).timestamp();
-        let urgent = (event_start < time_ahead) && !(self.has_started());
+        //let now = get_time_now();
+        //let time_ahead = (now + duration).timestamp();
+        //let event_start = self.get_start_time().timestamp();
+        //let event_passed = (self.get_start_time() + duration).timestamp();
+        //let urgent = (event_start < time_ahead) && !(self.has_started());
+        //urgent
+        let urgent = self.will_start_in(duration) && !(self.has_started());
         urgent
     }
 }
