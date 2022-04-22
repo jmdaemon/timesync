@@ -87,8 +87,8 @@ impl Event {
 
     /// Appends DTSTART to the RRULE string
     pub fn format_rrule(&self) -> String{
-        let dtstart  = &self.properties.get("DTSTART").unwrap();
-        let rrule_str = &self.properties.get("RRULE").unwrap();
+        let dtstart  = self.dtstart();
+        let rrule_str = self.get_property("RRULE");
 
         let mut rrule: String = "DTSTART:".to_string();
         rrule.push_str(&dtstart.to_string());
@@ -110,11 +110,26 @@ impl Event {
         println!("{:?}", recurrences);
     }
 
-    //pub fn is_ongoing(&self) -> bool {
-        //let now = get_time_now();
-        //let ongoing = now > self.get_start_time();
-        //return false;
-    //}
+    /// Determine if the event is currently ongoing
+    pub fn is_ongoing(&self) -> bool {
+        let now = get_time_now().timestamp();
+        let ongoing = (now > self.get_start_time().timestamp()) && !(now > self.get_end_time().timestamp());
+        ongoing
+    }
+
+    /// Determine if the event occurs today
+    pub fn is_today() -> bool {
+        let date_today = get_time_now().date();
+        let today = date_today == self.get_start_time().date();
+        today
+    }
+
+    /// Determine if the event occurs tomorrow
+    pub fn is_tomorrow() -> bool {
+        let date_tomorrow = get_time_now() + Duration::days(1);
+        let tomorrow = get_start_time().date() == date_tomorrow.date();
+        tomorrow
+    }
 }
 
 /// Reads a file into a string and returns the result
