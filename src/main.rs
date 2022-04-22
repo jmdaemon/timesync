@@ -54,18 +54,28 @@ impl Event {
     }
 
     /// Get a property for the event
-    pub fn get_property(&self, key: &str) -> NaiveDateTime {
-        parse_datetime(self.properties.get(key).expect(&format!("{} not found.", key)))
+    pub fn get_property(&self, key: &str) -> String {
+        self.properties.get(key).expect(&format!("{} not found.", key))
+    }
+
+    /// Gets the DTSTART event property
+    pub fn dtstart() -> String {
+        get_property("DTSTART")
+    }
+
+    /// Gets the DTEND event property
+    pub fn dtend() -> String {
+        get_property("DTEND")
     }
 
     /// Get the start time of the event
     pub fn get_start_time(&self) -> NaiveDateTime {
-        self.get_property("DTSTART")
+        parse_datetime(dtstart())
     }
 
     /// Get the end time of the event
     pub fn get_end_time(&self) -> NaiveDateTime {
-        self.get_property("DTEND")
+        parse_datetime(dtend())
     }
 
     /// Calculate the difference between DTSTART and DTEND
