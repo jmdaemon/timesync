@@ -29,7 +29,6 @@ fn gen_year(year: &str) -> YearData { YearData { current_year: SharedString::fro
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
-//#[derive(Debug)]
 #[derive(Default, Debug)]
 pub struct Event {
     pub properties: HashMap<String, String>
@@ -54,19 +53,19 @@ impl Event {
         Event { properties: properties }
     }
 
-    /// Get the time for the event
-    pub fn get_time(&self, key: &str) -> NaiveDateTime {
+    /// Get a property for the event
+    pub fn get_property(&self, key: &str) -> NaiveDateTime {
         parse_datetime(self.properties.get(key).expect(&format!("{} not found.", key)))
     }
 
     /// Get the start time of the event
     pub fn get_start_time(&self) -> NaiveDateTime {
-        self.get_time("DTSTART")
+        self.get_property("DTSTART")
     }
 
     /// Get the end time of the event
     pub fn get_end_time(&self) -> NaiveDateTime {
-        self.get_time("DTEND")
+        self.get_property("DTEND")
     }
 
     /// Calculate the difference between DTSTART and DTEND
