@@ -176,6 +176,28 @@ pub fn build_ui() -> AppWindow {
     ui
 }
 
+/// Gets the current date
+pub fn get_time() -> chrono::DateTime<chrono::Utc> {
+    chrono::Utc::now()
+}
+
+/// Gets the current midnight for today
+pub fn get_midnight() -> chrono::DateTime<chrono::Utc> {
+    get_time().date().and_hms(23, 59, 59)
+}
+
+/// Return all the events for today
+pub fn get_events_today() {
+}
+
+/// Return all the events for the week
+pub fn get_events_week() {
+}
+
+/// Get all possible events
+pub fn get_all_events() {
+}
+
 fn main() {
     let app = App::new("Timesync")
         .version("0.1.0")
