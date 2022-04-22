@@ -70,12 +70,12 @@ impl Event {
 
     /// Get the start time of the event
     pub fn get_start_time(&self) -> NaiveDateTime {
-        parse_datetime(dtstart())
+        self.parse_datetime(self.dtstart())
     }
 
     /// Get the end time of the event
     pub fn get_end_time(&self) -> NaiveDateTime {
-        parse_datetime(dtend())
+        self.parse_datetime(self.dtend())
     }
 
     /// Calculate the difference between DTSTART and DTEND
@@ -118,17 +118,50 @@ impl Event {
     }
 
     /// Determine if the event occurs today
-    pub fn is_today() -> bool {
+    pub fn is_today(&self) -> bool {
         let date_today = get_time_now().date();
         let today = date_today == self.get_start_time().date();
         today
     }
 
     /// Determine if the event occurs tomorrow
-    pub fn is_tomorrow() -> bool {
+    pub fn is_tomorrow(&self) -> bool {
         let date_tomorrow = get_time_now() + Duration::days(1);
-        let tomorrow = get_start_time().date() == date_tomorrow.date();
+        let tomorrow = self.get_start_time().date() == date_tomorrow.date();
         tomorrow
+    }
+
+    /// Determine if the event occurs this week
+    pub fn is_this_week(&self) -> bool {
+        let date_next_week = get_time_now() + Duration::days(7);
+        let week = self.get_start_time().date() < date_next_week.date();
+        week
+    }
+    
+    /**
+    * Determines if the event is urgent
+    * now: The current time
+    * urgent: Some time 
+    */
+    pub fn is_urgent(&self, duration: Duration) -> bool {
+        let now = get_time_now();
+        //let time_before_event = now + duration;
+        //let time_started = now + duration;
+        //let urgent = self.get_start_time().timestamp() < ;
+
+        let time_ahead = (now + duration).timestamp();
+
+        //let time_start = self.get_start_time().timestamp();
+        //let time_started = self.get_start_time() + duration;
+        // The event is urgent if it begins in
+        //(time_start < time_ahead) && !(now > time_started)
+
+        let event_start = self.get_start_time().timestamp();
+        let event_passed = (self.get_start_time() + duration).timestamp();
+        // The event is urgent if the event will start within the next duration of minutes/days, etc
+        // and the event has not already passed
+        let urgent = (event_start < time_ahead) && !(now > event_passed);
+        urgent
     }
 }
 
