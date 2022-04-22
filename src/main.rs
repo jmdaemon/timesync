@@ -137,30 +137,27 @@ impl Event {
         let week = self.get_start_time().date() < date_next_week.date();
         week
     }
+
+    /// Determines if the event has already started
+    pub fn has_started() -> bool {
+        let now = get_time_now();
+        let event_start_time = self.get_start_time();
+        let has_started = now > event_start_time;
+        has_started
+    }
     
     /**
     * Determines if the event is urgent
-    * now: The current time
-    * urgent: Some time 
+    * Note that the event is determined to be urgent if:
+    * - The specific event will occur within the next duration of minutes/hours/days
+    * - The specific event has not already passed.
     */
     pub fn is_urgent(&self, duration: Duration) -> bool {
         let now = get_time_now();
-        //let time_before_event = now + duration;
-        //let time_started = now + duration;
-        //let urgent = self.get_start_time().timestamp() < ;
-
         let time_ahead = (now + duration).timestamp();
-
-        //let time_start = self.get_start_time().timestamp();
-        //let time_started = self.get_start_time() + duration;
-        // The event is urgent if it begins in
-        //(time_start < time_ahead) && !(now > time_started)
-
         let event_start = self.get_start_time().timestamp();
         let event_passed = (self.get_start_time() + duration).timestamp();
-        // The event is urgent if the event will start within the next duration of minutes/days, etc
-        // and the event has not already passed
-        let urgent = (event_start < time_ahead) && !(now > event_passed);
+        let urgent = (event_start < time_ahead) && !(self.has_started());
         urgent
     }
 }
