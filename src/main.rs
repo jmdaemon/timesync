@@ -177,13 +177,13 @@ pub fn build_ui() -> AppWindow {
 }
 
 /// Gets the current date
-pub fn get_time() -> chrono::DateTime<chrono::Utc> {
+pub fn get_time_now() -> chrono::DateTime<chrono::Utc> {
     chrono::Utc::now()
 }
 
 /// Gets the current midnight for today
 pub fn get_midnight() -> chrono::DateTime<chrono::Utc> {
-    get_time().date().and_hms(23, 59, 59)
+    get_time_now().date().and_hms(23, 59, 59)
 }
 
 /// Return all the events for today
