@@ -242,12 +242,10 @@ pub fn parse_events(verbose: bool, parser_components: Vec<icalendar::parser::Com
 }
 
 /// Display all the calendar components found
-pub fn display_calcomp(verbose: bool, cal: Vec<icalendar::parser::Component>) {
-    if verbose {
-        for calcomp in cal {
-            println!("Components");
-            println!("{:?}\n", calcomp);
-        }
+pub fn display_calcomp(cal: Vec<icalendar::parser::Component>) {
+    for calcomp in cal {
+        info!("Components");
+        info!("{:?}\n", calcomp);
     }
 }
 
@@ -310,15 +308,14 @@ fn main() {
 
     let matches = app.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
-    let verbose;
 
     // Parse the calendar into a vector of parser components
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
-    display_calcomp(false, cal.clone());
-    let events = parse_events(verbose, cal);
+    display_calcomp(cal.clone());
+    let events = parse_events(false, cal);
     
     debug!("Events Vector:");
     debug!("{:?}", events);
