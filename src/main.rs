@@ -292,14 +292,19 @@ pub fn get_events_week() {
 pub fn get_all_events() {
 }
 
-fn main() {
-    pretty_env_logger::init();
+pub fn build_cli() -> clap::App<'static> {
     let app = App::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
         .about("Easily create beautiful, customizable annotations for pdfs")
         .arg(Arg::new("calpath").help("File path to the pdf"))
         .arg(Arg::new("v").help("Show verbose output"));
+    app
+}
+
+fn main() {
+    pretty_env_logger::init();
+    let app = build_cli();
 
     let mut borrow_app = app.clone();
     let matches = app.get_matches();
