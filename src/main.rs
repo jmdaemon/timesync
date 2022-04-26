@@ -300,10 +300,7 @@ pub fn build_cli() -> clap::Command<'static> {
         .about("Lightweight, fast, and highly customizable calendar application")
         .arg(Arg::new("calpath")
             .required(true)
-            .help("File path to the .ics calendar file"))
-        .arg(Arg::new("v")
-            .required(false)
-            .help("Show verbose output"));
+            .help("File path to the .ics calendar file"));
     app
 }
 
@@ -311,35 +308,20 @@ fn main() {
     pretty_env_logger::init();
     let app = build_cli();
 
-    let mut borrow_app = app.clone();
     let matches = app.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
     let verbose;
-
-    // Match only one occurrence of -v
-    match matches.occurrences_of("v") {
-        0 => verbose = false,
-        1 => verbose = true,
-        _ => {
-            // Display program usage and exit otherwise
-            borrow_app.print_help().unwrap();
-            println!("");
-            exit(1);
-        }
-    }
 
     // Parse the calendar into a vector of parser components
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
-    display_calcomp(verbose, cal.clone());
+    display_calcomp(false, cal.clone());
     let events = parse_events(verbose, cal);
     
-    if verbose {
-        println!("Events Vector:");
-        println!("{:?}", events);
-    }
+    debug!("Events Vector:");
+    debug!("{:?}", events);
 
     let example_event : &Event = &events[2];
     info!("Example Event");
