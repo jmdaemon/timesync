@@ -292,13 +292,18 @@ pub fn get_events_week() {
 pub fn get_all_events() {
 }
 
+/// Build the command line interface
 pub fn build_cli() -> clap::Command<'static> {
     let app = Command::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
-        .about("Easily create beautiful, customizable annotations for pdfs")
-        .arg(Arg::new("calpath").help("File path to the pdf"))
-        .arg(Arg::new("v").help("Show verbose output"));
+        .about("Lightweight, fast, and highly customizable calendar application")
+        .arg(Arg::new("calpath")
+            .required(true)
+            .help("File path to the .ics calendar file"))
+        .arg(Arg::new("v")
+            .required(false)
+            .help("Show verbose output"));
     app
 }
 
