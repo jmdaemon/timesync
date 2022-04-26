@@ -205,34 +205,22 @@ pub fn read_file(path: &str) -> Result<String, io::Error> {
 ///
 /// * `verbose` - Show verbose output
 /// * `parser_components` - The Vec of icalendar::parser::Components from parsing the calendar file
-pub fn parse_events(verbose: bool, parser_components: Vec<icalendar::parser::Component>) -> Vec<Event> {
+pub fn parse_events(parser_components: Vec<icalendar::parser::Component>) -> Vec<Event> {
     let mut events = Vec::new();
     for comp in parser_components {
         let acomponents = comp.components;
         for acomp in acomponents {
-            if verbose {
-                // Display component
-                println!("{:?}", acomp);
-
-                // Display all properties at once
-                println!("{:?}", acomp.properties);
-            }
+            info!("{:?}", acomp);               // Display component
+            info!("{:?}", acomp.properties);    // Display all properties at once
 
             let properties = acomp.properties;
             let mut event_properties = HashMap::new();
 
-            if verbose {
-                println!("Component Properties Found:");
-                for prop in properties {
-                        println!("{:?}", prop.name);
-                        println!("{:?}", prop.val);
-                        event_properties.insert(prop.name.to_string(), prop.val.to_string());
-                    }
-                }
-            else {
-                for prop in properties {
-                    event_properties.insert(prop.name.to_string(), prop.val.to_string());
-                }
+            info!("Component Properties Found:");
+            for prop in properties {
+                info!("{:?}", prop.name);
+                info!("{:?}", prop.val);
+                event_properties.insert(prop.name.to_string(), prop.val.to_string());
             }
             let event = Event::new(event_properties);
             events.push(event);
@@ -315,7 +303,7 @@ fn main() {
     let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
 
     display_calcomp(cal.clone());
-    let events = parse_events(false, cal);
+    let events = parse_events(cal);
     
     debug!("Events Vector:");
     debug!("{:?}", events);
