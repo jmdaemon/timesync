@@ -1,6 +1,6 @@
 extern crate icalendar;
 use log::{debug, error, info, warn};
-use clap::{Arg, App};
+use clap::{Arg, Command};
 use icalendar::{parser};
 use rrule::{RRule, DateFilter};
 use slint::{ModelRc, VecModel, SharedString};
@@ -292,8 +292,8 @@ pub fn get_events_week() {
 pub fn get_all_events() {
 }
 
-pub fn build_cli() -> clap::App<'static> {
-    let app = App::new("Timesync")
+pub fn build_cli() -> clap::Command<'static> {
+    let app = Command::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
         .about("Easily create beautiful, customizable annotations for pdfs")
