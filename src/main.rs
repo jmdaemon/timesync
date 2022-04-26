@@ -342,12 +342,14 @@ fn main() {
     }
 
     let example_event : &Event = &events[2];
-    println!("{:?}", events[2]);
-    println!("{:?}", example_event);
-    println!("{:?}", example_event.difftime());
-    println!("{}", &example_event.properties.get("DTSTART").unwrap());
+    info!("Example Event");
+    info!("{:?}", events[2]);
+    info!("{:?}", example_event);
+    info!("{:?}", example_event.difftime());
+    info!("{}", &example_event.properties.get("DTSTART").unwrap());
 
-    println!("{:?}", example_event.occurs_on(100));
+    info!("Event Occurs On:");
+    info!("{:?}", example_event.occurs_on(100));
 
     exit(0);
 
