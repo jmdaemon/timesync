@@ -280,21 +280,21 @@ pub fn get_all_events() {
 
 /// Build the command line interface
 pub fn build_cli() -> clap::Command<'static> {
-    let app = Command::new("Timesync")
+    let cli = Command::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
         .about("Lightweight, fast, and highly customizable calendar application")
         .arg(Arg::new("calpath")
             .required(true)
             .help("File path to the .ics calendar file"));
-    app
+    cli
 }
 
 fn main() {
     pretty_env_logger::init();
-    let app = build_cli();
+    let cli = build_cli();
 
-    let matches = app.get_matches();
+    let matches = cli.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
 
     // Parse the calendar into a vector of parser components
@@ -305,8 +305,8 @@ fn main() {
     display_calcomp(cal.clone());
     let events = parse_events(cal);
     
-    debug!("Events Vector:");
-    debug!("{:?}", events);
+    info!("Events Vector:");
+    info!("{:?}", events);
 
     let example_event : &Event = &events[2];
     info!("Example Event");
@@ -314,7 +314,6 @@ fn main() {
     info!("{:?}", example_event);
     info!("{:?}", example_event.difftime());
     info!("{}", &example_event.properties.get("DTSTART").unwrap());
-
     info!("Event Occurs On:");
     info!("{:?}", example_event.occurs_on(100));
 
