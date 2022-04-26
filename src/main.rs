@@ -1,4 +1,5 @@
 extern crate icalendar;
+use log::{debug, error, info, warn};
 use clap::{Arg, App};
 use icalendar::{parser};
 use rrule::{RRule, DateFilter};
@@ -292,6 +293,7 @@ pub fn get_all_events() {
 }
 
 fn main() {
+    pretty_env_logger::init();
     let app = App::new("Timesync")
         .version("0.1.0")
         .author("Joseph Diza <josephm.diza@gmail.com>")
