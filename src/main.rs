@@ -165,14 +165,18 @@ impl Event {
     * - The specific event has not already passed.
     */
     pub fn is_urgent(&self, duration: Duration) -> bool {
-        //let now = get_time_now();
-        //let time_ahead = (now + duration).timestamp();
-        //let event_start = self.get_start_time().timestamp();
-        //let event_passed = (self.get_start_time() + duration).timestamp();
-        //let urgent = (event_start < time_ahead) && !(self.has_started());
-        //urgent
         let urgent = self.will_start_in(duration) && !(self.has_started());
         urgent
+    }
+
+    /// Determine if the event takes place during the course of the entire day
+    pub fn is_allday(&self) -> bool {
+        let start = self.get_start_time().timestamp();
+        let end = self.get_end_time().timestamp();
+        let duration = end - start;
+        // An all day event is one whose start and end times are 00:00:00, and whose duration is divisible by 24
+        let allday = (self.get_start_time().time() == chrono::NaiveTime::from_hms(0,0,0)) && ((duration % 24) == 0);
+        allday
     }
 }
 
