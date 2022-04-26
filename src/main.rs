@@ -56,27 +56,27 @@ impl Event {
 
     /// Get a property for the event
     pub fn get_property(&self, key: &str) -> String {
-        self.properties.get(key).expect(&format!("{} not found.", key))
+        self.properties.get(key).expect(&format!("{} not found.", key)).to_string()
     }
 
     /// Gets the DTSTART event property
-    pub fn dtstart() -> String {
-        get_property("DTSTART")
+    pub fn dtstart(&self) -> String {
+        self.get_property("DTSTART")
     }
 
     /// Gets the DTEND event property
-    pub fn dtend() -> String {
-        get_property("DTEND")
+    pub fn dtend(&self) -> String {
+        self.get_property("DTEND")
     }
 
     /// Get the start time of the event
     pub fn get_start_time(&self) -> NaiveDateTime {
-        self.parse_datetime(self.dtstart())
+        parse_datetime(&self.dtstart())
     }
 
     /// Get the end time of the event
     pub fn get_end_time(&self) -> NaiveDateTime {
-        self.parse_datetime(self.dtend())
+        parse_datetime(&self.dtend())
     }
 
     /// Calculate the difference between DTSTART and DTEND
@@ -120,8 +120,8 @@ impl Event {
 
     /// Determine if the event occurs today
     pub fn is_today(&self) -> bool {
-        let date_today = get_time_now().date();
-        let today = date_today == self.get_start_time().date().naive_utc();
+        let date_today = get_time_now().date().naive_utc();
+        let today = date_today == self.get_start_time().date();
         today
     }
 
