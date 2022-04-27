@@ -275,7 +275,22 @@ pub fn get_events_week() {
 }
 
 /// Get all possible events
-pub fn get_all_events() {
+pub fn get_all_events(output: String) -> Vec<Event> {
+    let unfolded = parser::unfold(&output);
+    let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
+    display_calcomp(cal.clone());
+    let events = parse_events(cal);
+    events
+}
+
+pub fn filter_today(events: Vec<Event>) -> Vec<Event> {
+    let mut events_today = vec![];
+    for event in events {
+        if event.is_today() {
+            events_today.push(event);
+        }
+    }
+    events_today
 }
 
 /// Build the command line interface
@@ -286,7 +301,14 @@ pub fn build_cli() -> clap::Command<'static> {
         .about("Lightweight, fast, and highly customizable calendar application")
         .arg(Arg::new("calpath")
             .required(true)
-            .help("File path to the .ics calendar file"));
+            .help("File path to the .ics calendar file"))
+        .subcommand(
+            Command::new("check")
+            .arg(Arg::new("today")
+                .short('t')
+                .required(false)
+                .help("Show the calendar events for today"))
+            .about("Checks the calendar for events"));
     cli
 }
 
@@ -296,6 +318,40 @@ fn main() {
 
     let matches = cli.get_matches();
     let calpath = matches.value_of("calpath").expect("No calendar provided.");
+    
+    let subcmds = matches.subcommand();
+    match subcmds {
+        Some(("check", subcmds)) => {
+            // Display today's events or this weeks events
+            let display_today = subcmds.is_present("today");
+
+            // Get all events
+            let output = read_file(calpath).expect("Could not read the contents of {:?}");
+            let all_events = get_all_events(output);
+
+            let mut hevents: Vec<Event>;
+            match display_today {
+                true => { hevents = filter_today(all_events); },
+                false => { hevents = all_events}
+            }
+
+            let mut events: Vec<&Event> = vec![];
+
+            // Remove the first 'event' which is just the header
+            for i in 1..hevents.len() {
+                let event = &hevents[i];
+                events.push(event);
+            }
+
+            // Display the events
+            for event in events {
+                println!("{}\n", event.get_property("SUMMARY"));
+            }
+
+            exit(0);
+        } 
+        _ => {}
+    };
 
     // Parse the calendar into a vector of parser components
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
