@@ -345,7 +345,8 @@ fn main() {
 
             // Display the events
             for event in events {
-                println!("{}\n", event.get_property("SUMMARY"));
+                println!("{}", event.get_property("SUMMARY"));
+                println!("{}", event.get_property("DESCRIPTION"));
             }
 
             exit(0);
