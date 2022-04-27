@@ -303,7 +303,7 @@ pub fn build_cli() -> clap::Command<'static> {
             .required(true)
             .help("File path to the .ics calendar file"))
         .subcommand(
-            Command::new("check")
+            Command::new("show")
             .arg(Arg::new("today")
                 .short('t')
                 .required(false)
@@ -321,7 +321,7 @@ fn main() {
     
     let subcmds = matches.subcommand();
     match subcmds {
-        Some(("check", subcmds)) => {
+        Some(("show", subcmds)) => {
             // Display today's events or this weeks events
             let display_today = subcmds.is_present("today");
 
