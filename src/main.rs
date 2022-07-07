@@ -30,7 +30,7 @@ fn gen_year(year: &str) -> YearData { YearData { current_year: SharedString::fro
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Event {
     pub properties: HashMap<String, String>
 }
@@ -312,6 +312,20 @@ pub fn build_cli() -> clap::Command<'static> {
     cli
 }
 
+/// Removes the first "event" which is not a real event but 
+/// information about the calendar itself
+pub fn remove_header(hevents: Vec<Event>) -> Vec<Event> {
+    //let mut events: Vec<&Event> = vec![];
+    let mut events = vec![];
+
+    // Remove the first 'event' which is just the header
+    for i in 1..hevents.len() {
+        let event = hevents[i].clone();
+        events.push(event);
+    }
+    events
+}
+
 fn main() {
     pretty_env_logger::init();
     let cli = build_cli();
@@ -329,19 +343,15 @@ fn main() {
             let output = read_file(calpath).expect("Could not read the contents of {:?}");
             let all_events = get_all_events(output);
 
+            // Filter the events
             let mut hevents: Vec<Event>;
             match display_today {
                 true => { hevents = filter_today(all_events); },
                 false => { hevents = all_events}
             }
 
-            let mut events: Vec<&Event> = vec![];
-
-            // Remove the first 'event' which is just the header
-            for i in 1..hevents.len() {
-                let event = &hevents[i];
-                events.push(event);
-            }
+            // Remove the initial calendar blotter
+            let events = remove_header(hevents);
 
             // Display the events
             for event in events {
