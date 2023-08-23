@@ -1,5 +1,6 @@
-//pub mod app;
+pub mod app;
 pub mod calendar;
+pub mod consts;
 //pub mod event;
 
 #[cfg(feature = "ui")]

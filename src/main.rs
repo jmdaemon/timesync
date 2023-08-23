@@ -1,4 +1,5 @@
 use timesync::{
+    app::{CLI, Commands, CalendarDisplayType},
     enable_logging,
     calendar::{
         Event,
@@ -10,12 +11,13 @@ use timesync::{
     },
 };
 
-use std::fs::File;
+use std::fs::{File, self};
 use std::rc::Rc;
 use std::process::exit;
 use std::io::{self, Read};
 
-use clap::{Arg, Command};
+use anyhow::Result;
+use clap::Parser;
 use icalendar::parser;
 
 #[macro_use]
@@ -39,64 +41,49 @@ pub fn read_file(path: &str) -> Result<String, io::Error> {
     }
 }
 
-/// Build the command line interface
-pub fn build_cli() -> clap::Command<'static> {
-    let cli = Command::new("Timesync")
-        .version("0.1.0")
-        .author("Joseph Diza <josephm.diza@gmail.com>")
-        .about("Lightweight, fast, and highly customizable calendar application")
-        .arg(Arg::new("calpath")
-            .required(true)
-            .help("File path to the .ics calendar file"))
-        .subcommand(
-            Command::new("show")
-            .arg(Arg::new("today")
-                .short('t')
-                .required(false)
-                .help("Show the calendar events for today"))
-            .about("Checks the calendar for events"));
-    cli
-}
+fn main() -> Result<()> {
+    let cli = CLI::parse();
 
-fn main() {
-    enable_logging();
+    if cli.verbose {
+        enable_logging();
+    }
 
-    let cli = build_cli();
+    let calendar = cli.calendar;
 
-    let matches = cli.get_matches();
-    let calpath = matches.value_of("calpath").expect("No calendar provided.");
-    
-    let subcmds = matches.subcommand();
-    match subcmds {
-        Some(("show", subcmds)) => {
-            // Display today's events or this weeks events
-            let display_today = subcmds.is_present("today");
+    // TODO: Parse calendar url or filetype here
+    let calendar = calendar.unwrap();
 
-            // Get all events
-            let output = read_file(calpath).expect("Could not read the contents of {:?}");
-            let all_events = get_all_events(output);
+    let calendar = fs::read_to_string(calendar)?;
 
-            // Filter the events
-            let mut hevents: Vec<Event>;
-            match display_today {
-                true => { hevents = filter_today(all_events); },
-                false => { hevents = all_events}
+    #[allow(clippy::single_match)]
+    match cli.command {
+        Some(Commands::Show { display_type }) => {
+            let mut events = get_all_events(calendar);
+
+            match display_type {
+                CalendarDisplayType::Today => {
+                    events = filter_today(events);
+                },
+                CalendarDisplayType::Week => {},
+                CalendarDisplayType::Month => {},
             }
+            // Remove the first event calendar
+            let events = remove_header(events);
 
-            // Remove the initial calendar blotter
-            let events = remove_header(hevents);
-
-            // Display the events
+            // Show events
             for event in events {
                 println!("{}", event.get_property("SUMMARY"));
                 println!("{}", event.get_property("DESCRIPTION"));
             }
+            // Quit early
+            return Ok(());
+        }
+        _ => {},
+    }
+    
+    Ok(())
 
-            exit(0);
-        } 
-        _ => {}
-    };
-
+    /*
     // Parse the calendar into a vector of parser components
     let output = read_file(calpath).expect("Could not read the contents of {:?}");
     let unfolded = parser::unfold(&output);
@@ -121,4 +108,5 @@ fn main() {
 
     //let ui = build_ui();
     //ui.run();
+    */
 }
