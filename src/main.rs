@@ -210,16 +210,16 @@ pub fn parse_events(parser_components: Vec<icalendar::parser::Component>) -> Vec
     for comp in parser_components {
         let acomponents = comp.components;
         for acomp in acomponents {
-            info!("{:?}", acomp);               // Display component
-            info!("{:?}", acomp.properties);    // Display all properties at once
+            debug!("{:?}", acomp);               // Display component
+            debug!("{:?}", acomp.properties);    // Display all properties at once
 
             let properties = acomp.properties;
             let mut event_properties = HashMap::new();
 
-            info!("Component Properties Found:");
+            debug!("Component Properties Found:");
             for prop in properties {
-                info!("{:?}", prop.name);
-                info!("{:?}", prop.val);
+                debug!("{:?}", prop.name);
+                debug!("{:?}", prop.val);
                 event_properties.insert(prop.name.to_string(), prop.val.to_string());
             }
             let event = Event::new(event_properties);
@@ -232,8 +232,8 @@ pub fn parse_events(parser_components: Vec<icalendar::parser::Component>) -> Vec
 /// Display all the calendar components found
 pub fn display_calcomp(cal: Vec<icalendar::parser::Component>) {
     for calcomp in cal {
-        info!("Components");
-        info!("{:?}\n", calcomp);
+        debug!("Components");
+        debug!("{:?}\n", calcomp);
     }
 }
 
@@ -326,6 +326,12 @@ pub fn remove_header(hevents: Vec<Event>) -> Vec<Event> {
     events
 }
 
+// Get the first day of the current month
+// Get the week day of the first day
+// Calculate the offset of the week day
+// Get the total number of days of the previous month
+// 
+
 fn main() {
     pretty_env_logger::init();
     let cli = build_cli();
@@ -384,7 +390,7 @@ fn main() {
     info!("Event Occurs On:");
     info!("{:?}", example_event.occurs_on(100));
 
-    exit(0);
+    //exit(0);
 
     let ui = build_ui();
     ui.run();
