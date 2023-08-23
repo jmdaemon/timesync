@@ -9,7 +9,7 @@ use clap::{Parser, arg, Subcommand, ValueEnum};
 #[derive(Parser)]
 #[command(author, version, about, long_about = PROGRAM_DESCRIPTION)]
 pub struct CLI {
-    #[arg(short, long, default_value_t = false, help = "Toggle verbose information")]
+    #[arg(short, long, default_value_t = false, global = true, help = "Toggle verbose information")]
     pub verbose: bool,
 
     #[arg(short, long, global = true, help = "File path or URL to a valid .ics calendar")]
