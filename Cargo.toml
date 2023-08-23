@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-slint = "0.2.0"
+slint = { version = "0.2.0", optional = true }
 chrono = "0.4"
 num-traits = "0.2.14"
 clap = "3.0.14"
@@ -16,4 +16,7 @@ tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
 
 [build-dependencies]
-slint-build = "0.2.0"
+slint-build = { version = "0.2.0", optional = true }
+
+[features]
+ui = ["slint", "slint-build"]
