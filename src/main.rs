@@ -1,16 +1,19 @@
+use crate::enable_logging;
+
 extern crate icalendar;
-use log::{debug, error, info, warn};
+
+use std::fs::File;
+use std::rc::Rc;
+use std::process::exit;
+use std::collections::HashMap;
+use std::io::{self, Read};
+
 use clap::{Arg, Command};
 use icalendar::{parser};
 use rrule::{RRule, DateFilter};
 use slint::{ModelRc, VecModel, SharedString};
 use chrono::{Duration, Datelike, Month, NaiveDateTime};
 use num_traits::FromPrimitive;
-use std::fs::File;
-use std::rc::Rc;
-use std::process::exit;
-use std::collections::HashMap;
-use std::io::{self, Read};
 
 slint::include_modules!();
 
