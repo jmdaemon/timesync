@@ -2,7 +2,7 @@ use timesync::{
     app::{CLI, Commands, CalendarDisplayType},
     enable_logging,
     calendar::{
-        filter_today, read_calendar, show_calendar, show_calendar_events, filter_tomorrow, filter_week, filter_month, filter_year, show_event,
+        filter_today, read_calendar, show_calendar, show_calendar_events, filter_tomorrow, filter_week, filter_month, filter_year, show_event, filter_by,
     },
 };
 
@@ -48,15 +48,7 @@ fn main() -> Result<()> {
 
             // Show the specified events only
             let display_type = display_type.unwrap();
-            
-            let components = match display_type {
-                CalendarDisplayType::Today      => filter_today(&cal),
-                CalendarDisplayType::Tomorrow   => filter_tomorrow(&cal),
-                CalendarDisplayType::Week       => filter_week(&cal),
-                CalendarDisplayType::Month      => filter_month(&cal),
-                CalendarDisplayType::Year       => filter_year(&cal),
-            };
-
+            let components = filter_by(&cal, display_type);
             components.iter().for_each(|event| show_event(event, titles_only));
 
             return Ok(());

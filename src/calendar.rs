@@ -6,14 +6,17 @@ use rrule::{RRule, DateFilter};
 
 use num_traits::FromPrimitive;
 
+use crate::app::CalendarDisplayType;
+
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
-#[derive(Default, Debug, Clone)]
-pub struct VEvent {
-    pub properties: HashMap<String, String>
-}
+//#[derive(Default, Debug, Clone)]
+//pub struct VEvent {
+    //pub properties: HashMap<String, String>
+//}
 
+/*
 impl VEvent {
     /// Print the dates that the event occurs on
     ///
@@ -78,6 +81,7 @@ impl VEvent {
         allday
     }
 }
+*/
 
 pub fn read_calendar(conts: &str) -> Calendar {
     parser::read_calendar(&parser::unfold(conts))
@@ -165,32 +169,14 @@ pub fn midnight() -> Time {
     DateTime::<Utc>::from_utc(midnight, Utc)
 }
 
-// Show all the events for today
-pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
-    let tonight = midnight();
-    filter_events(cal, tonight)
-}
-
-// Show all the events for tomorrow
-pub fn filter_tomorrow(cal: &Calendar) -> Vec<CalendarComponent> {
-    let tomorrow_night = midnight() + Duration::days(1);
-    filter_events(cal, tomorrow_night)
-}
-
-// Show all the events for the week
-pub fn filter_week(cal: &Calendar) -> Vec<CalendarComponent> {
-    let next_week = midnight() + Duration::weeks(1);
-    filter_events(cal, next_week)
-}
-
-// Show all the events for the month
-pub fn filter_month(cal: &Calendar) -> Vec<CalendarComponent> {
-    let next_month = midnight() + Months::new(1);
-    filter_events(cal, next_month)
-}
-
-// Show all the events for the year
-pub fn filter_year(cal: &Calendar) -> Vec<CalendarComponent> {
-    let next_year = midnight().with_year(midnight().year() + 1).unwrap();
-    filter_events(cal, next_year)
+// Show all the events only for a given time frame
+pub fn filter_by(cal: &Calendar, display_type: CalendarDisplayType) -> Vec<CalendarComponent> {
+    let timedelta = match display_type {
+        CalendarDisplayType::Today      => midnight(),
+        CalendarDisplayType::Tomorrow   => midnight() + Duration::days(1),
+        CalendarDisplayType::Week       => midnight() + Duration::weeks(1),
+        CalendarDisplayType::Month      => midnight() + Months::new(1),
+        CalendarDisplayType::Year       => midnight().with_year(midnight().year() + 1).unwrap(),
+    };
+    filter_events(cal, timedelta)
 }
