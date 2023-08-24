@@ -33,10 +33,16 @@ fn main() -> Result<()> {
     match cli.command {
         Some(Commands::Show { display_type }) => {
             let cal = read_calendar(&calendar);
-            //show_calendar(&cal);
-            //show_calendar_events(&cal);
             
-            //println!("{:?}", display_type);
+            // Show the entire calendar by default
+            if display_type.is_none() {
+                show_calendar(&cal);
+                return Ok(());
+            }
+
+            // Show the specified events only
+            let display_type = display_type.unwrap();
+            
             let components = match display_type {
                 CalendarDisplayType::Today      => filter_today(&cal),
                 CalendarDisplayType::Tomorrow   => filter_tomorrow(&cal),

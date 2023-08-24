@@ -24,7 +24,7 @@ pub enum Commands {
     #[command(about = "Show a calendar's events")]
     Show {
         #[arg(value_enum)]
-        display_type: CalendarDisplayType
+        display_type: Option<CalendarDisplayType>
     },
 }
 

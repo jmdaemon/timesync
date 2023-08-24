@@ -189,7 +189,7 @@ pub fn read_calendar(conts: &str) -> Calendar {
 //pub fn display_calendar(cal: &Calendar) {
 // Display the entire calendar
 pub fn show_calendar(cal: &Calendar) {
-    println!("Displaying Calendar: \n");
+    info!("Displaying Calendar: \n");
     println!("{}", cal);
 }
 
@@ -205,7 +205,7 @@ pub fn show_event(component: &CalendarComponent) {
     }
 }
 pub fn show_calendar_events(cal: &Calendar) {
-    println!("Displaying Calendar Events: \n");
+    info!("Displaying Calendar Events: \n");
     cal.iter().for_each(show_event);
 }
 
