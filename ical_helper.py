@@ -25,10 +25,12 @@ def first_day(dt):
 
 # Get the day of the first monday
 # We will define this as the first week of the month
-def first_monday(year, month, day):
+# def first_monday(year, month, day):
+def first_monday(dt: datetime):
     # d = datetime(year, int(month), 7)
     # dt.day = 7
-    dt = datetime(year, int(month), 7)
+    # dt = datetime(year, int(month), 7)
+    dt.replace(day = 7)
     offset = -dt.weekday() # weekday = 0 means monday
     return dt + timedelta(offset)
          # return (date_value.isocalendar()[1] - date_value.replace(day=1).isocalendar()[1] + 1)
@@ -37,52 +39,80 @@ def first_monday(year, month, day):
 
 # Daily:
 # We will have the events occur at 8:00, 16:00, and 24:00 (00:00)
-# TIME_1 = time(hour=0, minute=0, second=0)
-# TIME_2 = time(hour=8, minute=0, second=0)
-# TIME_3 = time(hour=16, minute=0, second=0)
 TIME_1 = dict(hour=0, minute=0, second=0)
 TIME_2 = dict(hour=8, minute=0, second=0)
 TIME_3 = dict(hour=16, minute=0, second=0)
 
+TIMES = [ TIME_1, TIME_2, TIME_3 ]
 
 # Define the recurring events
+
+# Reoccur every day
 def reoccurs_daily(dtstart: datetime):
-    return rrule(freq=DAILY, count=4, dtstart=dtstart)
+    return rrule(freq=DAILY, dtstart=dtstart)
+
+# Reoccur every week
+def reoccurs_weekly(dtstart: datetime):
+    return rrule(freq=WEEKLY, dtstart=dtstart)
+
+# Reoccur every month
+def reoccurs_monthly(dtstart: datetime):
+    return rrule(freq=MONTHLY, dtstart=dtstart)
+
+# Calendar
 
 def prodid(org, product, locale):
     return f'-//{org}//{product}//{locale}'
-
-def make_daily():
-    today = datetime.today()
-
-
-
-
-
-# def create_event(time_frame):
-    # event_time_frame = datetime.today()
-    # msg = ''
-    # match time_frame:
-        # case 'daily': pass
-        # case 'weekly': event_time_frame += timedelta(weeks = 7)
-        # case 'monthly': 
-
-    # event = Event()
-
-# def create_event(time_frame):
-
-# cal = Calendar()
 
 def create_calendar(cal):
     cal.add('prodid', prodid("jmdaemon", "ical_helper", "EN"))
     cal.add('version', '2.0')
 
+## Calendar Events
+
+def create_event(summary: str, dtstart: datetime, dtend: datetime, dtstamp: datetime):
+    event = Event()
+    event.add('summary', summary)
+    event.add('dtstart', dtstart)
+    event.add('dtend', dtend)
+    event.add('dtstamp', dtstamp)
+    return event
+
+def create_daily_event(start: datetime, end: datetime):
+    return create_event('Example daily event', start, end, start)
+
+def create_daily_event_year_later(time: dict):
+    fst_mon = first_monday(first_day(datetime.today()))
+    year_later = first_monday(first_day(datetime.today()))
+    year_later.replace(year = year_later.year + 1)
+    dt = fst_mon.replace(**time)
+    print(create_daily_event(dt, year_later))
+
 def main():
-    # time(hour = , 
-    today = datetime.today()
-    # dt = datetime(time=TIME_1)
-    dt = datetime.today().replace(**TIME_1)
-    # dt.time=
-    # print(list(reoccurs_daily(datetime.today())))
-    print(list(reoccurs_daily(dt)))
-main()
+    fst_mon = first_monday(first_day(datetime.today()))
+    time_1 = fst_mon.replace(**TIME_1)
+    time_2 = fst_mon.replace(**TIME_2)
+    time_3 = fst_mon.replace(**TIME_3)
+
+    print(reoccurs_daily(time_1))
+    print(reoccurs_daily(time_2))
+    print(reoccurs_daily(time_3))
+
+
+    # print(list(reoccurs_daily(time_1)))
+    # print(list(reoccurs_daily(time_2)))
+    # print(list(reoccurs_daily(time_3)))
+# main()
+
+# fst_mon = first_monday(first_day(datetime.today()))
+# year_later = first_monday(first_day(datetime.today()))
+# year_later.replace(year = year_later.year + 1)
+
+# time_1 = fst_mon.replace(**TIME_1)
+# time_2 = fst_mon.replace(**TIME_2)
+# time_3 = fst_mon.replace(**TIME_3)
+
+# print(create_daily_event(time_1, year_later))
+
+for time in TIMES:
+    print(create_daily_event_year_later(time))
