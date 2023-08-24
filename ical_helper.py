@@ -37,6 +37,10 @@ def first_monday(dt: datetime):
     # dt.replace(day=1)
     # dt.weekday()
 
+def forward_year_later(time: datetime):
+    time.replace(year = time.year + 1)
+    return time
+
 # Daily:
 # We will have the events occur at 8:00, 16:00, and 24:00 (00:00)
 TIME_1 = dict(hour=0, minute=0, second=0)
@@ -78,15 +82,43 @@ def create_event(summary: str, dtstart: datetime, dtend: datetime, dtstamp: date
     event.add('dtstamp', dtstamp)
     return event
 
-def create_daily_event(start: datetime, end: datetime):
-    return create_event('Example daily event', start, end, start)
+def create_event_date_times(start: datetime, end: datetime):
+    return (start, end, start)
 
-def create_daily_event_year_later(time: dict):
+def create_year_later(time: dict):
     fst_mon = first_monday(first_day(datetime.today()))
-    year_later = first_monday(first_day(datetime.today()))
-    year_later.replace(year = year_later.year + 1)
+    year_later = forward_year_later(first_monday(first_day(datetime.today())))
     dt = fst_mon.replace(**time)
-    print(create_daily_event(dt, year_later))
+    return (dt, year_later)
+
+def create_event_summary(summary, time):
+    (start, end) = create_year_later(time)
+    return create_event(summary, *create_event_date_times(start, end))
+
+def create_daily_event(time):
+    return create_event_summary('Example daily event', time)
+
+def create_weekly_event(time):
+    return create_event_summary('Example weekly event', time)
+
+def create_monthly_event(time):
+    return create_event_summary('Example monthly event', time)
+
+
+# def create_weekly_event(start: datetime, end: datetime):
+    # return create_event('Example weekly event', start, end, start)
+
+# def create_weekly_event(start: datetime, end: datetime):
+    # return create_event('Example weekly event', start, end, start)
+
+
+
+# def create_daily_event_year_later(time: dict):
+    # print(create_daily_event(*create_year_later(time)))
+
+# def create_weekly_event_year_later(time: dict):
+    # print(create_weekly_event(*create_year_later(time)))
+
 
 def main():
     fst_mon = first_monday(first_day(datetime.today()))
@@ -98,21 +130,5 @@ def main():
     print(reoccurs_daily(time_2))
     print(reoccurs_daily(time_3))
 
-
-    # print(list(reoccurs_daily(time_1)))
-    # print(list(reoccurs_daily(time_2)))
-    # print(list(reoccurs_daily(time_3)))
-# main()
-
-# fst_mon = first_monday(first_day(datetime.today()))
-# year_later = first_monday(first_day(datetime.today()))
-# year_later.replace(year = year_later.year + 1)
-
-# time_1 = fst_mon.replace(**TIME_1)
-# time_2 = fst_mon.replace(**TIME_2)
-# time_3 = fst_mon.replace(**TIME_3)
-
-# print(create_daily_event(time_1, year_later))
-
 for time in TIMES:
-    print(create_daily_event_year_later(time))
+    print(create_daily_event(time))
