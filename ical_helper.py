@@ -2,7 +2,7 @@ from os import makedirs
 from os.path import dirname
 from icalendar import Calendar, Event, vCalAddress, vText
 from datetime import datetime, timedelta
-from dateutil.rrule import rrule, rrulestr, DAILY, WEEKLY, MONTHLY
+from dateutil.rrule import rrule, DAILY, WEEKLY, MONTHLY
 
 # Generate valid calendars to use for testing
 #
@@ -134,14 +134,11 @@ def with_organizer(event: Event):
     event.add('priority', 5)
 
 def with_rrule(event: Event, reoccur: rrule):
-    # rrule = format(reoccur)
-    # event['rrule'] = reoccur
-    # event['rrule'] = str(reoccur).split('\n')[1].replace('RRULE:', '')
+    # Format string for serialization
     s = str(reoccur) \
         .split('\n') \
         [1] \
-        .replace('RRULE:', '') \
-    # event['rrule'] = s
+        .replace('RRULE:', '')
     event['rrule'] = s
 
 def create_event(summary: str, dtstart: datetime, dtend: datetime, dtstamp: datetime):
@@ -198,11 +195,7 @@ def create_calendar_fn(create_fn, rrule_fn):
         event = create_fn(index, offset)
         with_organizer(event)
         with_rrule(event, rrule_fn(offset))
-        # cal.add_component(event)
-
-        # reoccur: rrule = rrule_fn(offset)
         cal.add_component(event)
-        # cal.add_component()
         index += 1
     return cal
 
@@ -215,5 +208,3 @@ def main():
     write_cal_to(WEEKLY_ICAL, create_calendar_weekly())
     write_cal_to(MONTHLY_ICAL, create_calendar_monthly())
 main()
-
-# print(reoccurs_daily(offsets_events_daily[0]))
