@@ -6,7 +6,6 @@ use rrule::RRuleSet;
 
 use num_traits::FromPrimitive;
 
-
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
@@ -52,9 +51,9 @@ pub fn show_event(component: &CalendarComponent, titles_only: bool) {
         (_, _)              => println!("No events to show"),
     }
 }
-pub fn show_calendar_events(cal: &Calendar, titles_only: bool) {
+pub fn show_calendar_events(events: Vec<CalendarComponent>, titles_only: bool) {
     info!("Displaying Calendar Events: \n");
-    cal.iter().for_each(|event| show_event(event, titles_only));
+    events.iter().for_each(|event| show_event(event, titles_only));
 }
 
 //

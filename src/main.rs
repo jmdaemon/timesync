@@ -1,9 +1,7 @@
 use timesync::{
-    app::{CLI, Commands, CalendarDisplayType},
+    app::{CLI, Commands},
+    calendar::{read_calendar, show_calendar, show_calendar_events, filter_by},
     enable_logging,
-    calendar::{
-        filter_today, read_calendar, show_calendar, show_calendar_events, filter_tomorrow, filter_week, filter_month, filter_year, show_event, filter_by,
-    },
 };
 
 use std::{fs, process::exit};
@@ -49,7 +47,7 @@ fn main() -> Result<()> {
             // Show the specified events only
             let display_type = display_type.unwrap();
             let components = filter_by(&cal, display_type);
-            components.iter().for_each(|event| show_event(event, titles_only));
+            show_calendar_events(components, titles_only);
 
             return Ok(());
         }
