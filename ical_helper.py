@@ -186,12 +186,12 @@ def write_cal_to(file, cal):
         f.write(cal.to_ical().decode("utf-8"))
 
 # Takes a higher order function to create a calendar
-def create_calendar_fn(create_fn, rrule_fn):
+def create_calendar_fn(create_fn, offsets, rrule_fn):
     cal = create_calendar()
 
     # Populate events
     index = 1
-    for offset in offsets_events_daily:
+    for offset in offsets:
         event = create_fn(index, offset)
         with_organizer(event)
         with_rrule(event, rrule_fn(offset))
@@ -199,9 +199,9 @@ def create_calendar_fn(create_fn, rrule_fn):
         index += 1
     return cal
 
-def create_calendar_daily(): return create_calendar_fn(create_daily_event, reoccurs_daily)
-def create_calendar_weekly(): return create_calendar_fn(create_weekly_event, reoccurs_weekly)
-def create_calendar_monthly(): return create_calendar_fn(create_monthly_event, reoccurs_monthly)
+def create_calendar_daily(): return create_calendar_fn(create_daily_event, offsets_events_daily, reoccurs_daily)
+def create_calendar_weekly(): return create_calendar_fn(create_weekly_event, offsets_events_weekly, reoccurs_weekly)
+def create_calendar_monthly(): return create_calendar_fn(create_monthly_event, offsets_events_monthly, reoccurs_monthly)
 
 def main():
     write_cal_to(DAILY_ICAL, create_calendar_daily())
