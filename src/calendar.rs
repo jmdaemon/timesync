@@ -17,7 +17,6 @@ fn year() -> String { chrono::Utc::now().year().to_string() }
 //}
 
 /*
-impl VEvent {
     /// Print the dates that the event occurs on
     ///
     /// # Arguments
@@ -30,57 +29,6 @@ impl VEvent {
         let recurrences = rrule.all(limit).unwrap();
         println!("{:?}", recurrences);
     }
-
-    /// Determine if the event is currently ongoing
-    pub fn is_ongoing(&self) -> bool {
-        let now = get_time_now().timestamp();
-        let ongoing = (now > self.get_start_time().timestamp()) && !(now > self.get_end_time().timestamp());
-        ongoing
-    }
-
-
-
-    /// Determines if the event has already started
-    pub fn has_started(&self) -> bool {
-        let now = get_time_now().timestamp();
-        let event_start_time = self.get_start_time().timestamp();
-        let has_started = now > event_start_time;
-        has_started
-    }
-
-    /// Determines if an event will start soon
-    pub fn will_start_in(&self, duration: Duration) -> bool {
-        let now = get_time_now();
-        let future = (now + duration).timestamp();
-        let start = self.get_start_time().timestamp();
-        // If the event will start x minutes/hours/days into the future
-        // return true, else false otherwise
-        // Note that an absolute difference function might be better to use here
-        let starts_soon = start == future; 
-        starts_soon
-    }
-    
-    /**
-    * Determines if the event is urgent
-    * Note that the event is determined to be urgent if:
-    * - The specific event will occur within the next duration of minutes/hours/days
-    * - The specific event has not already passed.
-    */
-    pub fn is_urgent(&self, duration: Duration) -> bool {
-        let urgent = self.will_start_in(duration) && !(self.has_started());
-        urgent
-    }
-
-    /// Determine if the event takes place during the course of the entire day
-    pub fn is_allday(&self) -> bool {
-        let start = self.get_start_time().timestamp();
-        let end = self.get_end_time().timestamp();
-        let duration = end - start;
-        // An all day event is one whose start and end times are 00:00:00, and whose duration is divisible by 24
-        let allday = (self.get_start_time().time() == chrono::NaiveTime::from_hms(0,0,0)) && ((duration % 24) == 0);
-        allday
-    }
-}
 */
 
 pub fn read_calendar(conts: &str) -> Calendar {
@@ -116,6 +64,10 @@ pub fn show_calendar_events(cal: &Calendar, titles_only: bool) {
     info!("Displaying Calendar Events: \n");
     cal.iter().for_each(|event| show_event(event, titles_only));
 }
+
+//
+// Time
+//
 
 // Filter events before a given date
 pub type Time = DateTime<Utc>;
@@ -179,4 +131,29 @@ pub fn filter_by(cal: &Calendar, display_type: CalendarDisplayType) -> Vec<Calen
         CalendarDisplayType::Year       => midnight().with_year(midnight().year() + 1).unwrap(),
     };
     filter_events(cal, timedelta)
+}
+
+// Reminders:
+// We have 3 separate functions that correspond to past, present and future event times
+// Namely: has_started, is_starting, and will_start
+
+// Determines if an event has already started
+pub fn has_started(event: impl EventLike) -> bool {
+    let start = get_event_start(event).unwrap();
+    let now = Utc::now();
+    (now - start) > Duration::zero()
+}
+
+// Determines if an event is starting soon
+pub fn is_starting(event: impl EventLike) -> bool {
+    let start = get_event_start(event).unwrap();
+    let now = Utc::now();
+    (now - start) == Duration::zero()
+}
+
+// Determines if an event will start soon
+pub fn will_start(event: impl EventLike, tdelta: Duration) -> bool {
+    let start = get_event_start(event).unwrap();
+    let now = Utc::now();
+    (start - now) <= tdelta
 }
