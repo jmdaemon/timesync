@@ -31,6 +31,7 @@ pub enum Commands {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum CalendarDisplayType {
     Today,
+    Tomorrow,
     Week,
     Month,
 }

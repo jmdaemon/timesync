@@ -1,21 +1,14 @@
 use std::collections::HashMap;
 
-use chrono::{Duration, Datelike, Month, NaiveDateTime};
-use icalendar::parser;
+use chrono::{Duration, Datelike, Month, NaiveDateTime, DateTime, Utc, TimeZone, NaiveTime};
+use icalendar::{parser, Event as VEvent, Calendar, CalendarComponent, Component, DatePerhapsTime, CalendarDateTime, EventLike, Todo};
 use rrule::{RRule, DateFilter};
+use either::*;
 
 use num_traits::FromPrimitive;
 
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
-
-/// Display all the calendar components found
-pub fn display_calcomp(cal: Vec<icalendar::parser::Component>) {
-    for calcomp in cal {
-        debug!("Components");
-        debug!("{:?}\n", calcomp);
-    }
-}
 
 #[derive(Default, Debug, Clone)]
 pub struct Event {
@@ -185,15 +178,6 @@ pub fn get_events_today() {
 pub fn get_events_week() {
 }
 
-/// Get all possible events
-pub fn get_all_events(output: String) -> Vec<Event> {
-    let unfolded = parser::unfold(&output);
-    let cal = parser::read_calendar_simple(&unfolded).expect("Unable to create Calendar");
-    display_calcomp(cal.clone());
-    let events = parse_events(cal);
-    events
-}
-
 pub fn filter_today(events: Vec<Event>) -> Vec<Event> {
     let mut events_today = vec![];
     for event in events {
@@ -218,33 +202,151 @@ pub fn remove_header(hevents: Vec<Event>) -> Vec<Event> {
     events
 }
 
-/// Convert all the calendar components into a vector of
-/// Events with the properties available as an easy to use HashMap
-///
-/// # Arguments
-///
-/// * `verbose` - Show verbose output
-/// * `parser_components` - The Vec of icalendar::parser::Components from parsing the calendar file
-pub fn parse_events(parser_components: Vec<icalendar::parser::Component>) -> Vec<Event> {
-    let mut events = Vec::new();
-    for comp in parser_components {
-        let acomponents = comp.components;
-        for acomp in acomponents {
-            debug!("{:?}", acomp);               // Display component
-            debug!("{:?}", acomp.properties);    // Display all properties at once
+//pub fn to_events(conts: &str) -> Vec<Event> {
+pub fn read_calendar(conts: &str) -> Calendar {
+    parser::read_calendar(&parser::unfold(conts))
+        .expect("Could not read Calendar").into()
+}
 
-            let properties = acomp.properties;
-            let mut event_properties = HashMap::new();
+//pub fn display_calendar(cal: &Calendar) {
+// Display the entire calendar
+pub fn show_calendar(cal: &Calendar) {
+    println!("Displaying Calendar: \n");
+    println!("{}", cal);
+}
 
-            debug!("Component Properties Found:");
-            for prop in properties {
-                debug!("{:?}", prop.name);
-                debug!("{:?}", prop.val);
-                event_properties.insert(prop.name.to_string(), prop.val.to_string());
-            }
-            let event = Event::new(event_properties);
-            events.push(event);
+pub fn show_calendar_events(cal: &Calendar) {
+    println!("Displaying Calendar Events: \n");
+    cal.iter().for_each(|component| {
+        match (component.as_event(), component.as_todo()) {
+            (Some(event), None) => println!("{}", event.to_string()),
+            (None, Some(todo)) => println!("{}", todo.to_string()),
+            (_, _) => {}
         }
-    }
-    events
+    });
+}
+
+// Filter events before a given date
+//pub fn filter_time(event: impl EventLike) {
+
+pub type Time = DateTime<Utc>;
+
+pub fn get_event_start(event: impl EventLike) -> Option<Time> {
+    let maybe_dt = event.get_start()
+        .expect(&format!("Error: No DTSTART found for event: {}", event.get_summary().unwrap()));
+
+    let dt = match maybe_dt {
+        DatePerhapsTime::DateTime(dt) => {
+            dt.try_into_utc()
+        },
+        DatePerhapsTime::Date(date) => {
+            Some(Utc.from_utc_datetime(&NaiveDateTime::new(date, NaiveTime::default())))
+        }
+    };
+    dt
+}
+
+pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
+    let dt = get_event_start(event);
+    dt.map(|datetime| { datetime < time }).unwrap_or(false)
+}
+
+pub fn filter_events<'a>(cal: Calendar, time: DateTime<Utc>) -> Vec<CalendarComponent> {
+    cal.to_owned().into_iter()
+        .filter(|component| {
+            //component.as_event()
+            //.or(component.as_todo())
+            //.map(|event| filter_event_by_time(event, time))
+
+            //let o1 = component.as_event();
+            //let o2 = component.as_todo();
+            //let o3 = o1.or(o2).map(|event| filter_event_by_time(event, time));
+            //o3.is_some()
+            //let values = [Left(component.as_event()), Right(component.as_todo())];
+            //let values = [Left(component.as_event()), Right(component.as_todo())];
+
+            //let left = Left(component.as_event());
+            //let right = Right(component.as_todo());
+
+            //let left_right = [Left(component.as_event()), Right(component.as_todo())];
+
+            //let left  = either::for_both!(left, event => filter_event_by_time(event.into(), time));
+            //let right = either::for_both!(right, event => filter_event_by_time(event.into(), time));
+            //let in_time_frame = either::for_both!(left_right, event => filter_event_by_time(event.into(), time));
+            //let in_time_frame = either::for_both!(left_right, vevent => filter_event_by_time(vevent.into(), time));
+            //in_time_frame;
+            let right = component.as_todo()
+                .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
+            let left = component.as_event()
+                .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
+            left || right
+            //values.map_either(|(a, b)| {
+            //})
+        }).collect()
+
+        //matches!(component.as_todo(), component.as_event());
+        //match component.as_todo() {
+        //}
+        //let event: Option<&'a dyn EventLike> = match (component.as_event(), component.as_todo()) {
+        //let event: Option<dyn Into<EventLike>> = match (component.as_event(), component.as_todo()) {
+        //let event: Option<dyn EventLike> = match (component.as_event(), component.as_todo()) {
+
+        /*
+        let event: Option<CalendarComponent> = match (component.as_event(), component.as_todo()) {
+            (Some(event), _) => Some(CalendarComponent::Event(event.to_owned())),
+            (_, Some(todo)) => Some(CalendarComponent::Todo(todo.to_owned())),
+            _ => None,
+        };
+        if let Some(event) = event {
+            return filter_event_by_time(event, time);
+        } else {
+            return false;
+        }
+        */
+
+        //if component.as_event().is_some() || component.as_todo().is_some() {
+            //let even = component.unwrap();
+            //return filter_event_by_time(event, time);
+        //} else {
+            //return false;
+        //}
+        //if let Some(event) = component.as_event() {
+
+        //} else {
+            //false
+        //}
+    //});
+}
+
+pub fn to_events(cal: &Calendar) {
+    //for component in cal.iter() {
+        //if let Some(event) = component.as_event() {
+            //let status = event.get_status().unwrap();
+            //event.status
+        //}
+    //}
+
+    //for component in cal.into_iter() {
+        //if let Some(event) = component.as_event() {
+            //println!("{}", event.to_string());
+        //}
+    //}
+    //let unfolded = parser::unfold(conts);
+    //let cal = parser::read_calendar(conts)
+        //.expect("Could not read Calendar");
+
+    //parser::read_calendar(input)
+
+    //let cal = parser::read_calendar_simple(&unfolded)
+        //.expect("Unable to read Calendar");
+    //display_calcomp(cal.clone());
+
+    //// Parse
+    //cal.into_iter().for_each(|component| {
+    //});
+    
+
+
+    //let events = parse_events(cal);
+    //events
 }

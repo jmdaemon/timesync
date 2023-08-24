@@ -3,12 +3,11 @@ use timesync::{
     enable_logging,
     calendar::{
         remove_header,
-        get_all_events,
-        filter_today,
+        filter_today, to_events, read_calendar, show_calendar, show_calendar_events,
     },
 };
 
-use std::fs;
+use std::{fs, process::exit};
 
 use anyhow::Result;
 use clap::Parser;
@@ -34,12 +33,22 @@ fn main() -> Result<()> {
     #[allow(clippy::single_match)]
     match cli.command {
         Some(Commands::Show { display_type }) => {
+            let cal = read_calendar(&calendar);
+            show_calendar(&cal);
+            show_calendar_events(&cal);
+            //to_events(cal);
+
+            exit(1);
+
+            /*
             let mut events = get_all_events(calendar);
 
             match display_type {
                 CalendarDisplayType::Today => {
                     events = filter_today(events);
                 },
+                CalendarDisplayType::Tomorrow => {
+                }
                 CalendarDisplayType::Week => {},
                 CalendarDisplayType::Month => {},
             }
@@ -51,6 +60,7 @@ fn main() -> Result<()> {
                 println!("{}", event.get_property("SUMMARY"));
                 println!("{}", event.get_property("DESCRIPTION"));
             }
+            */
             // Quit early
             return Ok(());
         }

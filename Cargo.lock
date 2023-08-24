@@ -477,7 +477,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29c39203181991a7dd4343b8005bd804e7a9a37afb8ac070e43771e8c820bbde"
 dependencies = [
  "chrono",
- "chrono-tz-build",
+ "chrono-tz-build 0.0.3",
+ "phf",
+]
+
+[[package]]
+name = "chrono-tz"
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1369bc6b9e9a7dfdae2055f6ec151fe9c554a9d23d357c0237cee2e25eaabb7"
+dependencies = [
+ "chrono",
+ "chrono-tz-build 0.2.0",
  "phf",
 ]
 
@@ -486,6 +497,17 @@ name = "chrono-tz-build"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f509c3a87b33437b05e2458750a0700e5bdd6956176773e6c7d6dd15a283a0c"
+dependencies = [
+ "parse-zoneinfo",
+ "phf",
+ "phf_codegen",
+]
+
+[[package]]
+name = "chrono-tz-build"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2f5ebdc942f57ed96d560a6d1a459bae5851102a25d5bf89dc04ae453e31ecf"
 dependencies = [
  "parse-zoneinfo",
  "phf",
@@ -1814,11 +1836,13 @@ dependencies = [
 
 [[package]]
 name = "icalendar"
-version = "0.11.1"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2781d11cde727e708524efb22c5cb0c3adb45756f9c0f17e5d7ec6b1a1b830c0"
+checksum = "753f71e82c28fb469f0d813019eea1caaf4e8064b1e3822556f5b6278c2869a4"
 dependencies = [
  "chrono",
+ "chrono-tz 0.8.3",
+ "iso8601",
  "nom",
  "uuid",
 ]
@@ -1916,6 +1940,15 @@ dependencies = [
  "hermit-abi",
  "rustix 0.38.8",
  "windows-sys",
+]
+
+[[package]]
+name = "iso8601"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "924e5d73ea28f59011fec52a0d12185d496a9b075d360657aed2a5707f701153"
+dependencies = [
+ "nom",
 ]
 
 [[package]]
@@ -2914,7 +2947,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf34c235fb6c9975051992d1070a4a3c8e55be7986f12ae446bca441662914e8"
 dependencies = [
  "chrono",
- "chrono-tz",
+ "chrono-tz 0.6.3",
  "lazy_static",
  "log",
  "regex",
@@ -3506,6 +3539,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "chrono-tz 0.8.3",
  "clap",
  "icalendar",
  "num-traits",
@@ -3789,11 +3823,12 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "uuid"
-version = "0.8.2"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
 dependencies = [
  "getrandom",
+ "wasm-bindgen",
 ]
 
 [[package]]
