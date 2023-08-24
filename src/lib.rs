@@ -1,3 +1,4 @@
+#![feature(type_alias_impl_trait)]
 pub mod app;
 pub mod calendar;
 pub mod consts;

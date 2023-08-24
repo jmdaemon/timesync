@@ -3,7 +3,7 @@ use timesync::{
     enable_logging,
     calendar::{
         remove_header,
-        filter_today, to_events, read_calendar, show_calendar, show_calendar_events,
+        filter_today, read_calendar, show_calendar, show_calendar_events,
     },
 };
 
