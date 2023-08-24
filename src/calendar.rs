@@ -186,7 +186,6 @@ pub fn read_calendar(conts: &str) -> Calendar {
         .expect("Could not read Calendar").into()
 }
 
-//pub fn display_calendar(cal: &Calendar) {
 // Display the entire calendar
 pub fn show_calendar(cal: &Calendar) {
     info!("Displaying Calendar: \n");
@@ -203,40 +202,13 @@ macro_rules! show {
         }
     };
 }
-        //if titles_only {
-            //println!("{}", event.get_summary().unwrap());
-        //} else {
-            //println!("{}", event.to_string());
-        //}
-    //}
+
 pub fn show_event(component: &CalendarComponent, titles_only: bool) {
-    //let show = |event: EventLike| {
-        //if titles_only {
-            //println!("{}", event.get_summary().unwrap());
-        //} else {
-            //println!("{}", event.to_string());
-        //}
-    //};
     match (component.as_event(), component.as_todo()) {
         (Some(event), None) => show!(event.to_owned(), titles_only),
         (None, Some(todo))  => show!(todo.to_owned(), titles_only),
         (_, _)              => println!("No events to show"),
     }
-        //match (component.as_event(), component.as_todo()) {
-            //(Some(event), None) => println!("{}", event.to_string()),
-            //(None, Some(todo))  => println!("{}", todo.to_string()),
-            //(_, _)              => println!("No events to show"),
-        //}
-    //component.as_todo().or(component.as_todo())
-
-        //.map(|event| show(event))
-        //.map(|event| if titles_only { })
-
-        //match (component.as_event(), component.as_todo()) {
-        //(Some(event), None) => println!("{}", event.to_string()),
-        //(None, Some(todo))  => println!("{}", todo.to_string()),
-        //(_, _)              => println!("No events to show"),
-        //}
 }
 pub fn show_calendar_events(cal: &Calendar, titles_only: bool) {
     info!("Displaying Calendar Events: \n");
@@ -247,12 +219,7 @@ pub fn show_calendar_events(cal: &Calendar, titles_only: bool) {
 pub type Time = DateTime<Utc>;
 //pub type VEventLike = impl EventLike;
 
-pub fn get_event_start(event: impl EventLike) -> Option<Time> {
-    info!("get_event_start()");
-    let maybe_dt = event.get_start()
-        .unwrap_or_else(|| panic!("Error: No DTSTART found for event: {}", event.get_summary().unwrap()));
-    debug!("{:?}", maybe_dt);
-
+pub fn parse_maybe_date(maybe_dt: DatePerhapsTime) -> Option<Time> {
     match maybe_dt {
         DatePerhapsTime::DateTime(dt) => {
             Some(match dt {
@@ -269,18 +236,24 @@ pub fn get_event_start(event: impl EventLike) -> Option<Time> {
     }
 }
 
+pub fn get_event_start(event: impl EventLike) -> Option<Time> {
+    info!("get_event_start()");
+    let maybe_dt = event.get_start()
+        .unwrap_or_else(|| panic!("Error: No DTSTART found for event: {}", event.get_summary().unwrap()));
+    debug!("{:?}", maybe_dt);
+    parse_maybe_date(maybe_dt)
+}
+
 pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
     let dt = get_event_start(event);
     dt.map(|datetime| { datetime < time }).unwrap_or(false)
 }
 
 // Filter events before a given date
-//pub fn filter_events(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
 pub fn filter_events(cal: &Calendar, time: DateTime<Utc>) -> Vec<CalendarComponent> {
     info!("filter_events()");
     cal.iter().cloned().filter(|component| {
         let right = component.as_todo()
-            //.is_some_and(|e| by_fn(e.to_owned(), time));
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
         let left = component.as_event()
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
@@ -294,75 +267,32 @@ pub fn midnight() -> Time {
     DateTime::<Utc>::from_utc(midnight, Utc)
 }
 
-//macro_rules! filter_by {
-    //($when_str:expr, $when:expr) => {
-        //// Show all the events for $when_str
-        //pub fn filter_$when(cal: &Calendar) -> Vec<CalendarComponent> {
-            //let midnight = midnight();
-            //filter_events(cal, midnight, filter_event_by_time)
-        //}
-    //};
-    //($when_str:expr, $when:expr, $offset:expr) => {
-        //// Show all the events for $when_str
-        //pub fn filter_$when(cal: &Calendar) -> Vec<CalendarComponent> {
-            //let midnight = midnight() + $offset;
-            //filter_events(cal, midnight, filter_event_by_time)
-        //}
-    //}
-//}
-
-//filter_by!(today, today);
-//filter_by!(tomorrow, tomorrow, Duration::days(1));
-//filter_by!("the week", week, Duration::days(7));
-
 // Show all the events for today
 pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight();
-    //filter_events(cal, midnight, filter_event_by_time)
     filter_events(cal, midnight)
 }
 
 // Show all the events for tomorrow
 pub fn filter_tomorrow(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight() + Duration::days(1);
-    //filter_events(cal, midnight, filter_event_by_time)
     filter_events(cal, midnight)
 }
 
 // Show all the events for the week
 pub fn filter_week(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight() + Duration::weeks(1);
-    //filter_events(cal, midnight, filter_event_by_time)
     filter_events(cal, midnight)
 }
 
 // Show all the events for the month
 pub fn filter_month(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight() + Months::new(1);
-    //filter_events(cal, midnight, filter_event_by_time)
     filter_events(cal, midnight)
 }
 
 // Show all the events for the year
 pub fn filter_year(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight().with_year(midnight().year() + 1).unwrap();
-    //filter_events(cal, midnight, filter_event_by_time)
     filter_events(cal, midnight)
 }
-
-//macro_rules! filter_by {
-    //() => {
-        //let midnight = midnight();
-        //filter_events(cal, midnight, filter_event_by_time)
-    //};
-    //($offset:expr) => {
-        //let midnight = midnight() + $offset;
-        //filter_events(cal, midnight, filter_event_by_time)
-    //}
-//}
-
-//// Show all the events for today
-//pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
-    //filter_by!()
-//}
-
