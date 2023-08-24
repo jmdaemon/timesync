@@ -472,35 +472,13 @@ dependencies = [
 
 [[package]]
 name = "chrono-tz"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29c39203181991a7dd4343b8005bd804e7a9a37afb8ac070e43771e8c820bbde"
-dependencies = [
- "chrono",
- "chrono-tz-build 0.0.3",
- "phf",
-]
-
-[[package]]
-name = "chrono-tz"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1369bc6b9e9a7dfdae2055f6ec151fe9c554a9d23d357c0237cee2e25eaabb7"
 dependencies = [
  "chrono",
- "chrono-tz-build 0.2.0",
+ "chrono-tz-build",
  "phf",
-]
-
-[[package]]
-name = "chrono-tz-build"
-version = "0.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f509c3a87b33437b05e2458750a0700e5bdd6956176773e6c7d6dd15a283a0c"
-dependencies = [
- "parse-zoneinfo",
- "phf",
- "phf_codegen",
 ]
 
 [[package]]
@@ -1841,7 +1819,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "753f71e82c28fb469f0d813019eea1caaf4e8064b1e3822556f5b6278c2869a4"
 dependencies = [
  "chrono",
- "chrono-tz 0.8.3",
+ "chrono-tz",
  "iso8601",
  "nom",
  "uuid",
@@ -2597,7 +2575,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90fcb95eef784c2ac79119d1dd819e162b5da872ce6f3c3abe1e8ca1c082f72b"
 dependencies = [
  "siphasher 0.3.11",
- "uncased",
 ]
 
 [[package]]
@@ -2942,12 +2919,12 @@ dependencies = [
 
 [[package]]
 name = "rrule"
-version = "0.7.3"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf34c235fb6c9975051992d1070a4a3c8e55be7986f12ae446bca441662914e8"
+checksum = "615777991e415d96aa97f6e45e809111911497c029e5d0df7f6d751d218d28e8"
 dependencies = [
  "chrono",
- "chrono-tz 0.6.3",
+ "chrono-tz",
  "lazy_static",
  "log",
  "regex",
@@ -3539,7 +3516,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "chrono-tz 0.8.3",
+ "chrono-tz",
  "clap",
  "icalendar",
  "num-traits",
@@ -3691,15 +3668,6 @@ checksum = "ce65604324d3cce9b966701489fbd0cf318cb1f7bd9dd07ac9a4ee6fb791930d"
 dependencies = [
  "tempfile",
  "winapi",
-]
-
-[[package]]
-name = "uncased"
-version = "0.9.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b9bc53168a4be7402ab86c3aad243a84dd7381d09be0eddc81280c1da95ca68"
-dependencies = [
- "version_check",
 ]
 
 [[package]]
