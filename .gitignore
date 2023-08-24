@@ -2,5 +2,5 @@ archive/
 target/
 .zip
 .ical
-*.ics
+/*.ics
 /ical

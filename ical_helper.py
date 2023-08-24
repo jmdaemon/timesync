@@ -2,7 +2,7 @@ from os import makedirs
 from os.path import dirname
 from icalendar import Calendar, Event, vCalAddress, vText
 from datetime import datetime, timedelta
-from dateutil.rrule import rrule, MONTHLY, WEEKLY, DAILY
+from dateutil.rrule import rrule, rrulestr, DAILY, WEEKLY, MONTHLY
 
 # Generate valid calendars to use for testing
 #
@@ -22,9 +22,9 @@ from dateutil.rrule import rrule, MONTHLY, WEEKLY, DAILY
 # The calendars will be written to these separate files
 
 ICAL_DIR        = 'test/ical'
-DAILY_ICAL      = f'{ICAL_DIR}/daily.ical'
-WEEKLY_ICAL     = f'{ICAL_DIR}/weekly.ical'
-MONTHLY_ICAL    = f'{ICAL_DIR}/monthly.ical'
+DAILY_ICAL      = f'{ICAL_DIR}/daily.ics'
+WEEKLY_ICAL     = f'{ICAL_DIR}/weekly.ics'
+MONTHLY_ICAL    = f'{ICAL_DIR}/monthly.ics'
 
 #
 # Initial Datetime Offsets
@@ -95,15 +95,16 @@ def advance_year_later(dt: datetime):
 
 # Reoccur every day
 def reoccurs_daily(dtstart: datetime):
-    return rrule(freq=DAILY, interval=1,dtstart=dtstart)
+    # return rrule(freq=DAILY, interval=1,dtstart=dtstart)
+    return rrule(freq=DAILY, interval=1)
 
 # Reoccur every week
 def reoccurs_weekly(dtstart: datetime):
-    return rrule(freq=WEEKLY, interval=1, wkst=0, dtstart=dtstart) # Start on monday
+    return rrule(freq=WEEKLY, interval=1, wkst=0) # Start on monday
 
 # Reoccur every month
 def reoccurs_monthly(dtstart: datetime):
-    return rrule(freq=MONTHLY, interval=1, bymonth=1, dtstart=dtstart)
+    return rrule(freq=MONTHLY, interval=1, bymonth=1)
 
 #
 # Calendar
@@ -131,6 +132,17 @@ def with_organizer(event: Event):
     event['organizer'] = organizer
     event['location'] = vText('British Columbia, Vancouver')
     event.add('priority', 5)
+
+def with_rrule(event: Event, reoccur: rrule):
+    # rrule = format(reoccur)
+    # event['rrule'] = reoccur
+    # event['rrule'] = str(reoccur).split('\n')[1].replace('RRULE:', '')
+    s = str(reoccur) \
+        .split('\n') \
+        [1] \
+        .replace('RRULE:', '') \
+    # event['rrule'] = s
+    event['rrule'] = s
 
 def create_event(summary: str, dtstart: datetime, dtend: datetime, dtstamp: datetime):
     event = Event()
@@ -177,24 +189,31 @@ def write_cal_to(file, cal):
         f.write(cal.to_ical().decode("utf-8"))
 
 # Takes a higher order function to create a calendar
-def create_calendar_fn(fn):
+def create_calendar_fn(create_fn, rrule_fn):
     cal = create_calendar()
 
     # Populate events
     index = 1
     for offset in offsets_events_daily:
-        event = fn(index, offset)
+        event = create_fn(index, offset)
         with_organizer(event)
+        with_rrule(event, rrule_fn(offset))
+        # cal.add_component(event)
+
+        # reoccur: rrule = rrule_fn(offset)
         cal.add_component(event)
+        # cal.add_component()
         index += 1
     return cal
 
-def create_calendar_daily(): return create_calendar_fn(create_daily_event)
-def create_calendar_weekly(): return create_calendar_fn(create_weekly_event)
-def create_calendar_monthly(): return create_calendar_fn(create_monthly_event)
+def create_calendar_daily(): return create_calendar_fn(create_daily_event, reoccurs_daily)
+def create_calendar_weekly(): return create_calendar_fn(create_weekly_event, reoccurs_weekly)
+def create_calendar_monthly(): return create_calendar_fn(create_monthly_event, reoccurs_monthly)
 
 def main():
     write_cal_to(DAILY_ICAL, create_calendar_daily())
     write_cal_to(WEEKLY_ICAL, create_calendar_weekly())
     write_cal_to(MONTHLY_ICAL, create_calendar_monthly())
 main()
+
+# print(reoccurs_daily(offsets_events_daily[0]))
