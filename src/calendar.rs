@@ -159,28 +159,6 @@ impl VEvent {
     }
 }
 
-/// Gets the current date
-pub fn get_time_now() -> chrono::DateTime<chrono::Utc> {
-    chrono::Utc::now()
-}
-
-/// Gets the current midnight for today
-pub fn get_midnight() -> chrono::DateTime<chrono::Utc> {
-    get_time_now().date().and_hms(23, 59, 59)
-}
-
-/// Return all the events for today
-pub fn get_events_today() {
-}
-
-/// Return all the events for the week
-pub fn get_events_week() {
-}
-
-
-
-
-//pub fn to_events(conts: &str) -> Vec<Event> {
 pub fn read_calendar(conts: &str) -> Calendar {
     parser::read_calendar(&parser::unfold(conts))
         .expect("Could not read Calendar").into()
@@ -269,30 +247,30 @@ pub fn midnight() -> Time {
 
 // Show all the events for today
 pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
-    let midnight = midnight();
-    filter_events(cal, midnight)
+    let tonight = midnight();
+    filter_events(cal, tonight)
 }
 
 // Show all the events for tomorrow
 pub fn filter_tomorrow(cal: &Calendar) -> Vec<CalendarComponent> {
-    let midnight = midnight() + Duration::days(1);
-    filter_events(cal, midnight)
+    let tomorrow_night = midnight() + Duration::days(1);
+    filter_events(cal, tomorrow_night)
 }
 
 // Show all the events for the week
 pub fn filter_week(cal: &Calendar) -> Vec<CalendarComponent> {
-    let midnight = midnight() + Duration::weeks(1);
-    filter_events(cal, midnight)
+    let next_week = midnight() + Duration::weeks(1);
+    filter_events(cal, next_week)
 }
 
 // Show all the events for the month
 pub fn filter_month(cal: &Calendar) -> Vec<CalendarComponent> {
-    let midnight = midnight() + Months::new(1);
-    filter_events(cal, midnight)
+    let next_month = midnight() + Months::new(1);
+    filter_events(cal, next_month)
 }
 
 // Show all the events for the year
 pub fn filter_year(cal: &Calendar) -> Vec<CalendarComponent> {
-    let midnight = midnight().with_year(midnight().year() + 1).unwrap();
-    filter_events(cal, midnight)
+    let next_year = midnight().with_year(midnight().year() + 1).unwrap();
+    filter_events(cal, next_year)
 }
