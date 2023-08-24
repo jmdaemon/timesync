@@ -26,13 +26,18 @@ fn main() -> Result<()> {
 
     // TODO: Parse calendar url or filetype here
     let calendar = calendar.unwrap();
+    let titles_only = cli.title;
+
+    info!("Global Arguments: ");
+    info!("Calendar         : {:?}", calendar);
+    info!("Show Titles Only : {}", titles_only);
 
     let calendar = fs::read_to_string(calendar)?;
-    let titles_only = cli.title;
 
     #[allow(clippy::single_match)]
     match cli.command {
         Some(Commands::Show { display_type }) => {
+            info!("Commands::Show");
             let cal = read_calendar(&calendar);
             
             // Show the entire calendar by default

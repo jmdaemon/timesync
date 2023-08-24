@@ -248,32 +248,25 @@ pub type Time = DateTime<Utc>;
 //pub type VEventLike = impl EventLike;
 
 pub fn get_event_start(event: impl EventLike) -> Option<Time> {
+    info!("get_event_start()");
     let maybe_dt = event.get_start()
         .unwrap_or_else(|| panic!("Error: No DTSTART found for event: {}", event.get_summary().unwrap()));
-    //println!("{:?}", maybe_dt);
+    debug!("{:?}", maybe_dt);
 
-    let dt = match maybe_dt {
+    match maybe_dt {
         DatePerhapsTime::DateTime(dt) => {
             Some(match dt {
                 CalendarDateTime::Utc(dt) => dt,
                 CalendarDateTime::Floating(dt) => Utc.from_utc_datetime(&dt),
-                //CalendarDateTime::WithTimezone { date_time, tzid } => DateTime::(&date_time)
+                #[allow(unused_variables)]
                 CalendarDateTime::WithTimezone { date_time, tzid } => Utc.from_local_datetime(&date_time).single().unwrap(),
             })
-            //println!("{:?}", dt.try_into_utc());
-            //dt.try_into_utc()
         },
         DatePerhapsTime::Date(date) => {
-            //let midnight = midnight();
             let time = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
             Some(DateTime::<Utc>::from_utc(NaiveDateTime::new(date, time), Utc))
-            //DateTime::<Utc>>::from_utc()
-            
-            //Some(Utc.from_utc_datetime(&NaiveDateTime::new(date, NaiveTime::default())))
         }
-    };
-    //println!("{:?}", dt);
-    dt
+    }
 }
 
 pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
@@ -284,13 +277,14 @@ pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
 // Filter events before a given date
 //pub fn filter_events(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
 pub fn filter_events(cal: &Calendar, time: DateTime<Utc>) -> Vec<CalendarComponent> {
+    info!("filter_events()");
     cal.iter().cloned().filter(|component| {
         let right = component.as_todo()
             //.is_some_and(|e| by_fn(e.to_owned(), time));
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
         let left = component.as_event()
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
-        //println!("{}", left || right);
+        trace!("{}", left || right);
         left || right
     }).collect()
 }
