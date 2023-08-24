@@ -15,6 +15,9 @@ pub struct CLI {
     #[arg(short, long, global = true, help = "File path or URL to a valid .ics calendar")]
     pub calendar: Option<PathBuf>,
 
+    #[arg(short, long, default_value_t = false, global = true, help = "Display event title names only")]
+    pub title: bool,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }

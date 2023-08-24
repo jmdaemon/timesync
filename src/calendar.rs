@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::{Duration, Datelike, Month, NaiveDateTime, DateTime, Utc, TimeZone, NaiveTime, Months};
-use icalendar::{parser, Event as VEvent, Calendar, CalendarComponent, Component, DatePerhapsTime, CalendarDateTime, EventLike, Todo};
+use icalendar::{parser, Event, Calendar, CalendarComponent, Component, DatePerhapsTime, CalendarDateTime, EventLike, Todo};
 use rrule::{RRule, DateFilter};
 
 use num_traits::FromPrimitive;
@@ -10,7 +10,7 @@ fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
 #[derive(Default, Debug, Clone)]
-pub struct Event {
+pub struct VEvent {
     pub properties: HashMap<String, String>
 }
 
@@ -20,7 +20,7 @@ pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
         Err(_) => NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
     }
 }
-impl Event {
+impl VEvent {
     /// Returns an Event with the parsed event properties available
     /// in a HashMap
     /// For more information about properties see: https://datatracker.ietf.org/doc/html/rfc5545
@@ -28,8 +28,8 @@ impl Event {
     /// # Arguments
     ///
     /// * `properties` - A HashMap of Strings that hold the parsed properties of a Calendar event
-    pub fn new(properties: HashMap<String, String>) -> Event {
-        Event { properties: properties }
+    pub fn new(properties: HashMap<String, String>) -> VEvent {
+        VEvent { properties: properties }
     }
 
     /// Get a property for the event
@@ -194,19 +194,53 @@ pub fn show_calendar(cal: &Calendar) {
 }
 
 // Show all calendar events
-pub fn show_event(component: &CalendarComponent) {
-    match (component.as_event(), component.as_todo()) {
-        (Some(event), None) => println!("{}", event.to_string()),
-        (None, Some(todo)) => println!("{}", todo.to_string()),
-        (_, _) => {
-            println!("No events to show");
-
+macro_rules! show {
+    ($event:expr, $titles_only:expr) => {
+        if $titles_only {
+            println!("{}", $event.get_summary().unwrap());
+        } else {
+            println!("{}", $event.to_string());
         }
-    }
+    };
 }
-pub fn show_calendar_events(cal: &Calendar) {
+        //if titles_only {
+            //println!("{}", event.get_summary().unwrap());
+        //} else {
+            //println!("{}", event.to_string());
+        //}
+    //}
+pub fn show_event(component: &CalendarComponent, titles_only: bool) {
+    //let show = |event: EventLike| {
+        //if titles_only {
+            //println!("{}", event.get_summary().unwrap());
+        //} else {
+            //println!("{}", event.to_string());
+        //}
+    //};
+    match (component.as_event(), component.as_todo()) {
+        (Some(event), None) => show!(event.to_owned(), titles_only),
+        (None, Some(todo))  => show!(todo.to_owned(), titles_only),
+        (_, _)              => println!("No events to show"),
+    }
+        //match (component.as_event(), component.as_todo()) {
+            //(Some(event), None) => println!("{}", event.to_string()),
+            //(None, Some(todo))  => println!("{}", todo.to_string()),
+            //(_, _)              => println!("No events to show"),
+        //}
+    //component.as_todo().or(component.as_todo())
+
+        //.map(|event| show(event))
+        //.map(|event| if titles_only { })
+
+        //match (component.as_event(), component.as_todo()) {
+        //(Some(event), None) => println!("{}", event.to_string()),
+        //(None, Some(todo))  => println!("{}", todo.to_string()),
+        //(_, _)              => println!("No events to show"),
+        //}
+}
+pub fn show_calendar_events(cal: &Calendar, titles_only: bool) {
     info!("Displaying Calendar Events: \n");
-    cal.iter().for_each(show_event);
+    cal.iter().for_each(|event| show_event(event, titles_only));
 }
 
 // Filter events before a given date

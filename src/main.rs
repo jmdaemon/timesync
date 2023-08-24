@@ -28,6 +28,7 @@ fn main() -> Result<()> {
     let calendar = calendar.unwrap();
 
     let calendar = fs::read_to_string(calendar)?;
+    let titles_only = cli.title;
 
     #[allow(clippy::single_match)]
     match cli.command {
@@ -51,35 +52,8 @@ fn main() -> Result<()> {
                 CalendarDisplayType::Year       => filter_year(&cal),
             };
 
-            for component in components {
-                show_event(&component);
-            }
-            //to_events(cal);
+            components.iter().for_each(|event| show_event(event, titles_only));
 
-            exit(1);
-
-            /*
-            let mut events = get_all_events(calendar);
-
-            match display_type {
-                CalendarDisplayType::Today => {
-                    events = filter_today(events);
-                },
-                CalendarDisplayType::Tomorrow => {
-                }
-                CalendarDisplayType::Week => {},
-                CalendarDisplayType::Month => {},
-            }
-            // Remove the first event calendar
-            let events = remove_header(events);
-
-            // Show events
-            for event in events {
-                println!("{}", event.get_property("SUMMARY"));
-                println!("{}", event.get_property("DESCRIPTION"));
-            }
-            */
-            // Quit early
             return Ok(());
         }
         _ => {},
