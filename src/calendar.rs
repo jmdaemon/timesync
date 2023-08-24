@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::{Duration, Datelike, Month, NaiveDateTime, DateTime, Utc, TimeZone, NaiveTime};
+use chrono::{Duration, Datelike, Month, NaiveDateTime, DateTime, Utc, TimeZone, NaiveTime, Months};
 use icalendar::{parser, Event as VEvent, Calendar, CalendarComponent, Component, DatePerhapsTime, CalendarDateTime, EventLike, Todo};
 use rrule::{RRule, DateFilter};
 
@@ -194,33 +194,52 @@ pub fn show_calendar(cal: &Calendar) {
 }
 
 // Show all calendar events
+pub fn show_event(component: &CalendarComponent) {
+    match (component.as_event(), component.as_todo()) {
+        (Some(event), None) => println!("{}", event.to_string()),
+        (None, Some(todo)) => println!("{}", todo.to_string()),
+        (_, _) => {
+            println!("No events to show");
+
+        }
+    }
+}
 pub fn show_calendar_events(cal: &Calendar) {
     println!("Displaying Calendar Events: \n");
-    cal.iter().for_each(|component| {
-        match (component.as_event(), component.as_todo()) {
-            (Some(event), None) => println!("{}", event.to_string()),
-            (None, Some(todo)) => println!("{}", todo.to_string()),
-            (_, _) => {}
-        }
-    });
+    cal.iter().for_each(show_event);
 }
 
 // Filter events before a given date
 pub type Time = DateTime<Utc>;
-pub type VEventLike = impl EventLike;
+//pub type VEventLike = impl EventLike;
 
 pub fn get_event_start(event: impl EventLike) -> Option<Time> {
     let maybe_dt = event.get_start()
         .unwrap_or_else(|| panic!("Error: No DTSTART found for event: {}", event.get_summary().unwrap()));
+    //println!("{:?}", maybe_dt);
 
-    match maybe_dt {
+    let dt = match maybe_dt {
         DatePerhapsTime::DateTime(dt) => {
-            dt.try_into_utc()
+            Some(match dt {
+                CalendarDateTime::Utc(dt) => dt,
+                CalendarDateTime::Floating(dt) => Utc.from_utc_datetime(&dt),
+                //CalendarDateTime::WithTimezone { date_time, tzid } => DateTime::(&date_time)
+                CalendarDateTime::WithTimezone { date_time, tzid } => Utc.from_local_datetime(&date_time).single().unwrap(),
+            })
+            //println!("{:?}", dt.try_into_utc());
+            //dt.try_into_utc()
         },
         DatePerhapsTime::Date(date) => {
-            Some(Utc.from_utc_datetime(&NaiveDateTime::new(date, NaiveTime::default())))
+            //let midnight = midnight();
+            let time = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
+            Some(DateTime::<Utc>::from_utc(NaiveDateTime::new(date, time), Utc))
+            //DateTime::<Utc>>::from_utc()
+            
+            //Some(Utc.from_utc_datetime(&NaiveDateTime::new(date, NaiveTime::default())))
         }
-    }
+    };
+    //println!("{:?}", dt);
+    dt
 }
 
 pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
@@ -229,33 +248,93 @@ pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
 }
 
 // Filter events before a given date
-pub fn filter_events(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
+//pub fn filter_events(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
+pub fn filter_events(cal: &Calendar, time: DateTime<Utc>) -> Vec<CalendarComponent> {
     cal.iter().cloned().filter(|component| {
         let right = component.as_todo()
-            .is_some_and(|e| by_fn(e.to_owned(), time));
+            //.is_some_and(|e| by_fn(e.to_owned(), time));
+            .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
         let left = component.as_event()
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
+        //println!("{}", left || right);
         left || right
     }).collect()
 }
 
-//
-// Time
-//
 pub fn midnight() -> Time {
-    //let date_now = chrono::Utc::now().date_naive();
-    //let time_midnight = chrono::NaiveTime::from_hms_opt(23, 59, 59);
-    //chrono::DateTime
-    //let local = NaiveDateTime::new(, NaiveTime::from_hms_opt(23, 59, 59).unwrap());
-    //Utc::from_local_datetime(&self, local);
-
     let midnight = Utc::now().date_naive().and_time(NaiveTime::from_hms_opt(23, 59, 59).unwrap());
     DateTime::<Utc>::from_utc(midnight, Utc)
 }
 
+//macro_rules! filter_by {
+    //($when_str:expr, $when:expr) => {
+        //// Show all the events for $when_str
+        //pub fn filter_$when(cal: &Calendar) -> Vec<CalendarComponent> {
+            //let midnight = midnight();
+            //filter_events(cal, midnight, filter_event_by_time)
+        //}
+    //};
+    //($when_str:expr, $when:expr, $offset:expr) => {
+        //// Show all the events for $when_str
+        //pub fn filter_$when(cal: &Calendar) -> Vec<CalendarComponent> {
+            //let midnight = midnight() + $offset;
+            //filter_events(cal, midnight, filter_event_by_time)
+        //}
+    //}
+//}
+
+//filter_by!(today, today);
+//filter_by!(tomorrow, tomorrow, Duration::days(1));
+//filter_by!("the week", week, Duration::days(7));
+
+// Show all the events for today
 pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
     let midnight = midnight();
-    filter_events(cal, midnight, filter_event_by_time)
-    
-    //let midnight = Utc::now().date_naive().and_hms_opt(hour, min, sec)
+    //filter_events(cal, midnight, filter_event_by_time)
+    filter_events(cal, midnight)
 }
+
+// Show all the events for tomorrow
+pub fn filter_tomorrow(cal: &Calendar) -> Vec<CalendarComponent> {
+    let midnight = midnight() + Duration::days(1);
+    //filter_events(cal, midnight, filter_event_by_time)
+    filter_events(cal, midnight)
+}
+
+// Show all the events for the week
+pub fn filter_week(cal: &Calendar) -> Vec<CalendarComponent> {
+    let midnight = midnight() + Duration::weeks(1);
+    //filter_events(cal, midnight, filter_event_by_time)
+    filter_events(cal, midnight)
+}
+
+// Show all the events for the month
+pub fn filter_month(cal: &Calendar) -> Vec<CalendarComponent> {
+    let midnight = midnight() + Months::new(1);
+    //filter_events(cal, midnight, filter_event_by_time)
+    filter_events(cal, midnight)
+}
+
+// Show all the events for the year
+pub fn filter_year(cal: &Calendar) -> Vec<CalendarComponent> {
+    let midnight = midnight().with_year(midnight().year() + 1).unwrap();
+    //filter_events(cal, midnight, filter_event_by_time)
+    filter_events(cal, midnight)
+}
+
+//macro_rules! filter_by {
+    //() => {
+        //let midnight = midnight();
+        //filter_events(cal, midnight, filter_event_by_time)
+    //};
+    //($offset:expr) => {
+        //let midnight = midnight() + $offset;
+        //filter_events(cal, midnight, filter_event_by_time)
+    //}
+//}
+
+//// Show all the events for today
+//pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
+    //filter_by!()
+//}
+

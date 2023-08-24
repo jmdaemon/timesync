@@ -34,4 +34,5 @@ pub enum CalendarDisplayType {
     Tomorrow,
     Week,
     Month,
+    Year,
 }

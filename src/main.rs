@@ -2,7 +2,7 @@ use timesync::{
     app::{CLI, Commands, CalendarDisplayType},
     enable_logging,
     calendar::{
-        filter_today, read_calendar, show_calendar, show_calendar_events,
+        filter_today, read_calendar, show_calendar, show_calendar_events, filter_tomorrow, filter_week, filter_month, filter_year, show_event,
     },
 };
 
@@ -33,8 +33,21 @@ fn main() -> Result<()> {
     match cli.command {
         Some(Commands::Show { display_type }) => {
             let cal = read_calendar(&calendar);
-            show_calendar(&cal);
-            show_calendar_events(&cal);
+            //show_calendar(&cal);
+            //show_calendar_events(&cal);
+            
+            //println!("{:?}", display_type);
+            let components = match display_type {
+                CalendarDisplayType::Today      => filter_today(&cal),
+                CalendarDisplayType::Tomorrow   => filter_tomorrow(&cal),
+                CalendarDisplayType::Week       => filter_week(&cal),
+                CalendarDisplayType::Month      => filter_month(&cal),
+                CalendarDisplayType::Year       => filter_year(&cal),
+            };
+
+            for component in components {
+                show_event(&component);
+            }
             //to_events(cal);
 
             exit(1);
