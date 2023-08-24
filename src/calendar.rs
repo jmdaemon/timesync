@@ -14,68 +14,7 @@ pub struct VEvent {
     pub properties: HashMap<String, String>
 }
 
-pub fn parse_datetime(datetime: &str) -> chrono::NaiveDateTime {
-    match NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%S") {
-        Ok(datetime) => datetime,
-        Err(_) => NaiveDateTime::parse_from_str(datetime, "%Y%m%dT%H%M%SZ").expect("Unable to parse date time string")
-    }
-}
 impl VEvent {
-    /// Returns an Event with the parsed event properties available
-    /// in a HashMap
-    /// For more information about properties see: https://datatracker.ietf.org/doc/html/rfc5545
-    ///
-    /// # Arguments
-    ///
-    /// * `properties` - A HashMap of Strings that hold the parsed properties of a Calendar event
-    pub fn new(properties: HashMap<String, String>) -> VEvent {
-        VEvent { properties: properties }
-    }
-
-    /// Get a property for the event
-    pub fn get_property(&self, key: &str) -> String {
-        self.properties.get(key).expect(&format!("{} not found.", key)).to_string()
-    }
-
-    /// Gets the DTSTART event property
-    pub fn dtstart(&self) -> String {
-        self.get_property("DTSTART")
-    }
-
-    /// Gets the DTEND event property
-    pub fn dtend(&self) -> String {
-        self.get_property("DTEND")
-    }
-
-    /// Get the start time of the event
-    pub fn get_start_time(&self) -> NaiveDateTime {
-        parse_datetime(&self.dtstart())
-    }
-
-    /// Get the end time of the event
-    pub fn get_end_time(&self) -> NaiveDateTime {
-        parse_datetime(&self.dtend())
-    }
-
-    /// Calculate the difference between DTSTART and DTEND
-    pub fn difftime(&self) -> chrono::Duration {
-        let start = self.get_start_time().time();
-        let end = self.get_end_time().time();
-        end - start
-    }
-
-    /// Appends DTSTART to the RRULE string
-    pub fn format_rrule(&self) -> String{
-        let dtstart  = self.dtstart();
-        let rrule_str = self.get_property("RRULE");
-
-        let mut rrule: String = "DTSTART:".to_string();
-        rrule.push_str(&dtstart.to_string());
-        rrule.push_str("\n");
-        rrule.push_str(&rrule_str.to_string());
-        rrule.to_string()
-    }
-
     /// Print the dates that the event occurs on
     ///
     /// # Arguments
@@ -96,26 +35,7 @@ impl VEvent {
         ongoing
     }
 
-    /// Determine if the event occurs today
-    pub fn is_today(&self) -> bool {
-        let date_today = get_time_now().date().naive_utc();
-        let today = date_today == self.get_start_time().date();
-        today
-    }
 
-    /// Determine if the event occurs tomorrow
-    pub fn is_tomorrow(&self) -> bool {
-        let date_tomorrow = get_time_now() + Duration::days(1);
-        let tomorrow = self.get_start_time().date() == date_tomorrow.date().naive_utc();
-        tomorrow
-    }
-
-    /// Determine if the event occurs this week
-    pub fn is_this_week(&self) -> bool {
-        let date_next_week = get_time_now() + Duration::days(7);
-        let week = self.get_start_time().date() < date_next_week.date().naive_utc();
-        week
-    }
 
     /// Determines if the event has already started
     pub fn has_started(&self) -> bool {
