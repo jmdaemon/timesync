@@ -95,16 +95,15 @@ def advance_year_later(dt: datetime):
 
 # Reoccur every day
 def reoccurs_daily(dtstart: datetime):
-    # return rrule(freq=DAILY, interval=1,dtstart=dtstart)
-    return rrule(freq=DAILY, interval=1)
+    return rrule(freq=DAILY, dtstart=dtstart, interval=1)
 
 # Reoccur every week
 def reoccurs_weekly(dtstart: datetime):
-    return rrule(freq=WEEKLY, interval=1, wkst=0) # Start on monday
+    return rrule(freq=WEEKLY, dtstart=dtstart, interval=1, wkst=0) # Start on monday
 
 # Reoccur every month
 def reoccurs_monthly(dtstart: datetime):
-    return rrule(freq=MONTHLY, interval=1, bymonth=1)
+    return rrule(freq=MONTHLY, dtstart=dtstart, interval=1, bymonth=1)
 
 #
 # Calendar
@@ -134,12 +133,7 @@ def with_organizer(event: Event):
     event.add('priority', 5)
 
 def with_rrule(event: Event, reoccur: rrule):
-    # Format string for serialization
-    s = str(reoccur) \
-        .split('\n') \
-        [1] \
-        .replace('RRULE:', '')
-    event['rrule'] = s
+    event['rrule'] = reoccur
 
 def create_event(summary: str, dtstart: datetime, dtend: datetime, dtstamp: datetime):
     event = Event()
