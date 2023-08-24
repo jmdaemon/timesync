@@ -1,18 +1,16 @@
-use std::collections::HashMap;
+use crate::app::CalendarDisplayType;
 
 use chrono::{Duration, Datelike, Month, NaiveDateTime, DateTime, Utc, TimeZone, NaiveTime, Months};
 use icalendar::{parser, Event, Calendar, CalendarComponent, Component, DatePerhapsTime, CalendarDateTime, EventLike, Todo};
-use rrule::{RRule, RRuleSet, Tz};
+use rrule::RRuleSet;
 
 use num_traits::FromPrimitive;
 
-use crate::app::CalendarDisplayType;
 
 fn month() -> String { Month::from_u32(chrono::Utc::now().month()).unwrap().name().to_owned() }
 fn year() -> String { chrono::Utc::now().year().to_string() }
 
-// TODO:
-// Fix Time Zone inconsistencies with `chrono-tz`
+// TODO: Fix Time Zone inconsistencies with `chrono-tz`
 //
 // Use Local Time Zones For:
 // 1. Filtering Calendar events for today, tomorrow, ...
@@ -21,26 +19,9 @@ fn year() -> String { chrono::Utc::now().year().to_string() }
 //
 // Use UTC For:
 // 1. Everything else (if there even is anything left)
-
-//#[derive(Default, Debug, Clone)]
-//pub struct VEvent {
-    //pub properties: HashMap<String, String>
-//}
-
-/*
-    /// Print the dates that the event occurs on
-    ///
-    /// # Arguments
-    ///
-    /// * `limit` - A u16 that sets a hard limit in case of infinitely recurring rules.
-    pub fn occurs_on(&self, limit: u16) {
-        let format_rrule = &self.format_rrule();
-        let rrule: RRule = format_rrule.parse().unwrap();
-        // Get all recurrences of the rrule
-        let recurrences = rrule.all(limit).unwrap();
-        println!("{:?}", recurrences);
-    }
-*/
+//
+// TODO: Create NewType Structs for custom Calendar Outputs
+// TODO: Create common Event Trait to construct event trait objects at runtime
 
 pub fn read_calendar(conts: &str) -> Calendar {
     parser::read_calendar(&parser::unfold(conts))
@@ -178,25 +159,14 @@ pub fn parse_rrule(rrule: &str) -> RRuleSet {
 }
 
 // Retrieve n recurrences from an event's rrule
-//pub fn n_reoccurs(rrule: &str, n: u16) -> Vec<Time> {
 pub fn n_reoccurs(rrule: RRuleSet, n: u16) -> Vec<Time> {
     let occurences = rrule.all(n);
-    //occurences.dates
-        //.expect("Could not calculate reccurence");
-
-    //occurences.dates.into_iter().map(|dt| {
-        //Utc::from_local_datetime(&self, dt.naive_local())
-    //}).collect()
     occurences.dates.into_iter().map(|dt| {
         Utc.from_utc_datetime(&dt.naive_utc())
-        //Utc::from_utc_datetime(&self, &dt.naive_utc())
-        //dt.naive_utc();
-        //Utc::from_local_datetime(&self, local)
-        //Utc::from_local_datetime(&self, &dt.naive_local())
     }).collect()
 }
 
-pub fn all_events_between(before: Time, after: Time, rrule: &str, n: u16) -> Vec<Time> {
+pub fn reoccurs_between(before: Time, after: Time, rrule: &str, n: u16) -> Vec<Time> {
     let before = before.with_timezone(&rrule::Tz::UTC);
     let after = after.with_timezone(&rrule::Tz::UTC);
 
