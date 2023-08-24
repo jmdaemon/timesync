@@ -177,29 +177,8 @@ pub fn get_events_today() {
 pub fn get_events_week() {
 }
 
-pub fn filter_today(events: Vec<Event>) -> Vec<Event> {
-    let mut events_today = vec![];
-    for event in events {
-        if event.is_today() {
-            events_today.push(event);
-        }
-    }
-    events_today
-}
 
-/// Removes the first "event" which is not a real event but 
-/// information about the calendar itself
-pub fn remove_header(hevents: Vec<Event>) -> Vec<Event> {
-    //let mut events: Vec<&Event> = vec![];
-    let mut events = vec![];
 
-    // Remove the first 'event' which is just the header
-    for i in 1..hevents.len() {
-        let event = hevents[i].clone();
-        events.push(event);
-    }
-    events
-}
 
 //pub fn to_events(conts: &str) -> Vec<Event> {
 pub fn read_calendar(conts: &str) -> Calendar {
@@ -250,7 +229,7 @@ pub fn filter_event_by_time(event: impl EventLike, time: Time) -> bool {
 }
 
 // Filter events before a given date
-pub fn filter_events<T>(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
+pub fn filter_events(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEventLike, Time) -> bool) -> Vec<CalendarComponent> {
     cal.iter().cloned().filter(|component| {
         let right = component.as_todo()
             .is_some_and(|e| by_fn(e.to_owned(), time));
@@ -258,4 +237,25 @@ pub fn filter_events<T>(cal: &Calendar, time: DateTime<Utc>, by_fn: fn(T: VEvent
             .is_some_and(|e| filter_event_by_time(e.to_owned(), time));
         left || right
     }).collect()
+}
+
+//
+// Time
+//
+pub fn midnight() -> Time {
+    //let date_now = chrono::Utc::now().date_naive();
+    //let time_midnight = chrono::NaiveTime::from_hms_opt(23, 59, 59);
+    //chrono::DateTime
+    //let local = NaiveDateTime::new(, NaiveTime::from_hms_opt(23, 59, 59).unwrap());
+    //Utc::from_local_datetime(&self, local);
+
+    let midnight = Utc::now().date_naive().and_time(NaiveTime::from_hms_opt(23, 59, 59).unwrap());
+    DateTime::<Utc>::from_utc(midnight, Utc)
+}
+
+pub fn filter_today(cal: &Calendar) -> Vec<CalendarComponent> {
+    let midnight = midnight();
+    filter_events(cal, midnight, filter_event_by_time)
+    
+    //let midnight = Utc::now().date_naive().and_hms_opt(hour, min, sec)
 }

@@ -2,7 +2,6 @@ use timesync::{
     app::{CLI, Commands, CalendarDisplayType},
     enable_logging,
     calendar::{
-        remove_header,
         filter_today, read_calendar, show_calendar, show_calendar_events,
     },
 };
